@@ -42,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <header className="sticky top-0 z-40 bg-white shadow-sm lg:hidden">
         <div className="flex items-center justify-between h-16 px-4">
           <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold text-blue-700">VisitTracker</span>
+            <span className="text-xl font-bold text-blue-700">Organiza Gabinete</span>
           </Link>
           <Button variant="ghost" size="icon" onClick={toggleMenu}>
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -57,9 +57,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             "hidden fixed inset-y-0 z-50 flex-col bg-white border-r border-gray-200 pt-5 pb-4 w-64 lg:flex lg:relative transition-all duration-300",
           )}
         >
-          <div className="px-6 mb-8">
+          <div className="px-7 mb-9">
             <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-blue-700">VisitTracker</span>
+              <span className="text-2xl font-bold text-blue-700">Organiza Gabinete</span>
             </Link>
           </div>
           <div className="flex flex-col flex-1 overflow-y-auto">
