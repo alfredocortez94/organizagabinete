@@ -1,0 +1,46 @@
+
+# Dependências
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# Build
+dist
+dist-ssr
+*.local
+
+# IDE e Editores
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Sistema operacional
+.DS_Store
+*.pem
+
+# Testes
+coverage
+*.lcov
+
+# Logs
+logs
+*.log
+
+# Cache
+.cache
+.temp
+
+# Typescript
+*.tsbuildinfo
