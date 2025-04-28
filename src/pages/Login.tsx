@@ -29,7 +29,7 @@ const Login = () => {
       <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-white/90 shadow-xl border-0 transition-all duration-300 hover:shadow-2xl">
         <CardHeader className="space-y-3 text-center pb-6">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Organiza
+            Organiza Gabinete
           </CardTitle>
           <CardDescription className="text-muted-foreground text-base">
             Faça login para acessar o sistema
