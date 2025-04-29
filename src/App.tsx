@@ -10,7 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import VisitRequest from "./pages/VisitRequest";
 import VisitStatus from "./pages/VisitStatus";
 import ManageVisits from "./pages/ManageVisits";
-import WhatsApp from "./pages/Whatsapp";
+import WhatsApp from "./pages/WhatsApp";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
