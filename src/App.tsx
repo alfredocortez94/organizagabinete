@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import VisitRequest from "./pages/VisitRequest";
 import VisitStatus from "./pages/VisitStatus";
 import ManageVisits from "./pages/ManageVisits";
+import WhatsApp from "./pages/Whatsapp";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/request" element={<VisitRequest />} />
             <Route path="/status/:id" element={<VisitStatus />} />
             <Route path="/manage" element={<ManageVisits />} />
+            <Route path="/whatsapp" element={<WhatsApp />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />

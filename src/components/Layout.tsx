@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Calendar, Home, User, BarChart2, Settings, Menu, X } from "lucide-react";
+import { Calendar, Home, User, BarChart2, Settings, Menu, X, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -23,6 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Início", path: "/", icon: Home },
     { name: "Solicitar Visita", path: "/request", icon: Calendar },
     { name: "Gerenciar Visitas", path: "/manage", icon: User },
+    { name: "WhatsApp", path: "/whatsapp", icon: MessageSquare },
     { name: "Relatórios", path: "/reports", icon: BarChart2 },
     { name: "Configurações", path: "/settings", icon: Settings },
   ];
