@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -25,9 +25,14 @@ import {
   Settings as SettingsIcon,
   Save
 } from "lucide-react";
+import GoogleCalendarConfigComponent from "@/components/google-calendar/GoogleCalendarConfig";
+import { GoogleCalendarConfig } from "@/tipos/whatsapp";
+import { useVisit } from "@/context/VisitContext";
+import { syncVisitWithGoogleCalendar } from "@/utils/googleCalendar";
 
 const Settings = () => {
   const { toast } = useToast();
+  const { visits, updateVisitGoogleEventId } = useVisit();
   
   const [notificationSettings, setNotificationSettings] = useState({
     emailConfirmation: true,
@@ -47,6 +52,17 @@ const Settings = () => {
     googleCalendarEnabled: true,
   });
 
+
+  const [googleCalendarConfig, setGoogleCalendarConfig] = useState<GoogleCalendarConfig>(() => {
+    const savedConfig = localStorage.getItem("googleCalendarConfig");
+    return savedConfig 
+      ? JSON.parse(savedConfig) 
+      : { enabled: false };
+  });
+
+  useEffect(() => {
+    localStorage.setItem("googleCalendarConfig", JSON.stringify(googleCalendarConfig));
+  }, [googleCalendarConfig]);
   const handleNotificationChange = (key: keyof typeof notificationSettings) => {
     setNotificationSettings({
       ...notificationSettings,
@@ -60,6 +76,38 @@ const Settings = () => {
       title: "Configurações salvas",
       description: "Suas configurações de notificação foram atualizadas com sucesso.",
     });
+  };
+
+  const handleSaveGoogleCalendarConfig = async (newConfig: GoogleCalendarConfig) => {
+    setGoogleCalendarConfig(newConfig);
+    
+    // Se a integração foi ativada, tenta sincronizar as visitas aprovadas
+    if (newConfig.enabled && newConfig.authToken && newConfig.calendarId) {
+      const approvedVisits = visits.filter(visit => visit.status === "approved" && !visit.googleEventId);
+      
+      if (approvedVisits.length > 0) {
+        toast({
+          title: "Sincronização iniciada",
+          description: `Sincronizando ${approvedVisits.length} visitas aprovadas com o Google Calendar...`,
+        });
+        
+        let syncCount = 0;
+        
+        // Sincroniza cada visita aprovada
+        for (const visit of approvedVisits) {
+          const eventId = await syncVisitWithGoogleCalendar(visit, newConfig);
+          if (eventId) {
+            updateVisitGoogleEventId(visit.id, eventId);
+            syncCount++;
+          }
+        }
+        
+        toast({
+          title: "Sincronização concluída",
+          description: `${syncCount} visitas foram sincronizadas com sucesso.`,
+        });
+      }
+    }
   };
 
   const saveWebhookSettings = () => {
@@ -278,88 +326,70 @@ const Settings = () => {
           </TabsContent>
 
           <TabsContent value="integrations">
-            <Card>
-              <CardHeader>
-                <CardTitle>Integrações</CardTitle>
-                <CardDescription>
-                  Configure integrações com outras ferramentas e serviços.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Webhooks</h3>
-                  <div className="space-y-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="zapierUrl">URL do Webhook do Zapier</Label>
-                      <Input
-                        id="zapierUrl"
-                        placeholder="https://hooks.zapier.com/hooks/catch/..."
-                        value={webhookSettings.zapierUrl}
-                        onChange={(e) =>
-                          setWebhookSettings({
-                            ...webhookSettings,
-                            zapierUrl: e.target.value,
-                          })
-                        }
-                      />
-                      <p className="text-sm text-gray-500">
-                        Integre com o Zapier para automatizar fluxos de trabalho
-                      </p>
-                    </div>
+          <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Integrações</CardTitle>
+                  <CardDescription>
+                    Configure integrações com outras ferramentas e serviços.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Webhooks</h3>
+                    <div className="space-y-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="zapierUrl">URL do Webhook do Zapier</Label>
+                        <Input
+                          id="zapierUrl"
+                          placeholder="https://hooks.zapier.com/hooks/catch/..."
+                          value={webhookSettings.zapierUrl}
+                          onChange={(e) =>
+                            setWebhookSettings({
+                              ...webhookSettings,
+                              zapierUrl: e.target.value,
+                            })
+                          }
+                        />
+                        <p className="text-sm text-gray-500">
+                          Integre com o Zapier para automatizar fluxos de trabalho
+                        </p>
+                      </div>
 
-                    <div className="grid gap-2">
-                      <Label htmlFor="n8nUrl">URL do Webhook do n8n</Label>
-                      <Input
-                        id="n8nUrl"
-                        placeholder="https://your-n8n-instance.com/webhook/..."
-                        value={webhookSettings.n8nUrl}
-                        onChange={(e) =>
-                          setWebhookSettings({
-                            ...webhookSettings,
-                            n8nUrl: e.target.value,
-                          })
-                        }
-                      />
-                      <p className="text-sm text-gray-500">
-                        Use o n8n para automações avançadas e integrações com outros sistemas
-                      </p>
+                      <div className="grid gap-2">
+                        <Label htmlFor="n8nUrl">URL do Webhook do n8n</Label>
+                        <Input
+                          id="n8nUrl"
+                          placeholder="https://your-n8n-instance.com/webhook/..."
+                          value={webhookSettings.n8nUrl}
+                          onChange={(e) =>
+                            setWebhookSettings({
+                              ...webhookSettings,
+                              n8nUrl: e.target.value,
+                            })
+                          }
+                        />
+                        <p className="text-sm text-gray-500">
+                          Use o n8n para automações avançadas e integrações com outros sistemas
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <Separator />
+                  <Separator />
 
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Google Calendar</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="googleCalendarEnabled" className="font-medium">
-                        Integração com Google Calendar
-                      </Label>
-                      <p className="text-sm text-gray-500">
-                        Adicionar automaticamente visitas aprovadas ao Google Calendar
-                      </p>
-                    </div>
-                    <Switch
-                      id="googleCalendarEnabled"
-                      checked={webhookSettings.googleCalendarEnabled}
-                      onCheckedChange={() =>
-                        setWebhookSettings({
-                          ...webhookSettings,
-                          googleCalendarEnabled: !webhookSettings.googleCalendarEnabled,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
+                  <GoogleCalendarConfigComponent 
+                    config={googleCalendarConfig}
+                    onSave={handleSaveGoogleCalendarConfig}
+                  />
 
-                <Separator />
+                  <Separator />
 
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Exemplo de Configuração do n8n</h3>
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <p className="text-sm mb-2">Pseudocódigo para automação no n8n:</p>
-                    <pre className="text-xs bg-black text-white p-3 rounded overflow-x-auto">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Exemplo de Configuração do n8n</h3>
+                    <div className="bg-gray-50 p-4 rounded-md">
+                      <p className="text-sm mb-2">Pseudocódigo para automação no n8n:</p>
+                      <pre className="text-xs bg-black text-white p-3 rounded overflow-x-auto">
 {`// Exemplo de fluxo no n8n para enviar notificações WhatsApp
 
 // 1. Webhook Trigger para receber eventos do sistema
@@ -409,17 +439,12 @@ const Settings = () => {
     }
   }
 }`}
-                    </pre>
+                     </pre>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button onClick={saveWebhookSettings}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Salvar Configurações
-                </Button>
-              </CardFooter>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>       
           </TabsContent>
 
           <TabsContent value="system">

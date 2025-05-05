@@ -1,4 +1,3 @@
-
 export interface Contact {
     id: string;
     name: string;
@@ -7,3 +6,11 @@ export interface Contact {
     source: 'visit' | 'import' | 'manual';
     createdAt: string;
   }
+
+
+export interface GoogleCalendarConfig {
+  enabled: boolean;
+  authToken?: string;
+  calendarId?: string;
+  lastSyncedAt?: string;
+}

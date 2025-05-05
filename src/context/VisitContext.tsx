@@ -22,6 +22,7 @@ export interface Visit {
   ticketCode?: string;
   createdAt: string;
   updatedAt: string;
+  googleEventId?: string; // ID do evento no Google Calendar
 }
 
 // Define context interface
@@ -33,6 +34,7 @@ interface VisitContextProps {
   getVisitById: (id: string) => Visit | undefined;
   getVisitsByStatus: (status: VisitStatus) => Visit[];
   getVisitsByDate: (startDate: string, endDate: string) => Visit[];
+  updateVisitGoogleEventId: (visitId: string, googleEventId: string) => void;
 }
 
 // Create context
@@ -99,6 +101,21 @@ export const VisitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     toast.success(`Status da visita atualizado para ${getStatusLabel(status)}`);
   };
 
+  // Update Google Calendar event ID for a visit
+  const updateVisitGoogleEventId = (visitId: string, googleEventId: string) => {
+    setVisits((prev) =>
+      prev.map((visit) =>
+        visit.id === visitId
+          ? {
+              ...visit,
+              googleEventId,
+              updatedAt: new Date().toISOString(),
+            }
+          : visit
+      )
+    );
+  };
+
   // Get a visit by ID
   const getVisitById = (id: string) => {
     return visits.find((visit) => visit.id === id);
@@ -147,6 +164,7 @@ export const VisitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     getVisitById,
     getVisitsByStatus,
     getVisitsByDate,
+    updateVisitGoogleEventId,
   };
 
   return <VisitContext.Provider value={value}>{children}</VisitContext.Provider>;

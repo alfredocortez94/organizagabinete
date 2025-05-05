@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Search } from "lucide-react";
+import { Search, Calendar } from "lucide-react";
 import Layout from "@/components/Layout";
 import { useVisit, Visit, VisitStatus } from "@/context/VisitContext";
 import VisitCard from "@/components/VisitCard";
@@ -39,9 +39,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDate } from "@/lib/utils";
+import { useToast } from "@/components/ui/use-toast";
+import { GoogleCalendarConfig } from "@/tipos/whatsapp";
+import { syncVisitWithGoogleCalendar } from "@/utils/googleCalendar";
 
 const ManageVisits = () => {
-  const { visits, updateVisitStatus } = useVisit();
+  const { visits, updateVisitStatus, updateVisitGoogleEventId } = useVisit();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [newStatus, setNewStatus] = useState<VisitStatus>("approved");
@@ -49,9 +53,67 @@ const ManageVisits = () => {
   const [assignedTo, setAssignedTo] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleUpdateStatus = () => {
+  const [googleCalendarConfig, setGoogleCalendarConfig] = useState<GoogleCalendarConfig>(() => {
+    const savedConfig = localStorage.getItem("googleCalendarConfig");
+    return savedConfig 
+      ? JSON.parse(savedConfig) 
+      : { enabled: false };
+  });
+
+  // Carregar as configurações do Google Calendar
+  useEffect(() => {
+    const savedConfig = localStorage.getItem("googleCalendarConfig");
+    if (savedConfig) {
+      setGoogleCalendarConfig(JSON.parse(savedConfig));
+    }
+  }, []);
+
+  const handleUpdateStatus = async () => {
     if (selectedVisit) {
       updateVisitStatus(selectedVisit.id, newStatus, assignedTo, notes);
+      
+      // Se a visita foi aprovada e a sincronização com o Google Calendar está ativada
+      if (newStatus === "approved" && googleCalendarConfig.enabled && 
+          googleCalendarConfig.authToken && googleCalendarConfig.calendarId) {
+        try {
+          // Cria um objeto de visita atualizado com o novo status
+          const updatedVisit = {
+            ...selectedVisit,
+            status: newStatus,
+            assignedTo: assignedTo || selectedVisit.assignedTo,
+            notes: notes || selectedVisit.notes
+          };
+          
+          toast({
+            title: "Sincronizando",
+            description: "Adicionando visita ao Google Calendar...",
+          });
+          
+          const eventId = await syncVisitWithGoogleCalendar(updatedVisit, googleCalendarConfig);
+          
+          if (eventId) {
+            updateVisitGoogleEventId(selectedVisit.id, eventId);
+            toast({
+              title: "Sincronização concluída",
+              description: "Visita adicionada com sucesso ao Google Calendar.",
+            });
+          } else {
+            toast({
+              title: "Erro na sincronização",
+              description: "Não foi possível adicionar a visita ao Google Calendar.",
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          console.error("Erro ao sincronizar com o Google Calendar:", error);
+          toast({
+            title: "Erro na sincronização",
+            description: "Ocorreu um erro ao sincronizar com o Google Calendar.",
+            variant: "destructive",
+          });
+        }
+      }
+      
       setDialogOpen(false);
     }
   };
@@ -73,11 +135,86 @@ const ManageVisits = () => {
       );
   };
 
+  const syncVisitToGoogleCalendar = async (visit: Visit) => {
+    if (!googleCalendarConfig.enabled || !googleCalendarConfig.authToken || !googleCalendarConfig.calendarId) {
+      toast({
+        title: "Configuração incompleta",
+        description: "Configure a integração com o Google Calendar nas configurações.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: "Sincronizando",
+        description: "Adicionando visita ao Google Calendar...",
+      });
+      
+      const eventId = await syncVisitWithGoogleCalendar(visit, googleCalendarConfig);
+      
+      if (eventId) {
+        updateVisitGoogleEventId(visit.id, eventId);
+        toast({
+          title: "Sincronização concluída",
+          description: "Visita adicionada com sucesso ao Google Calendar.",
+        });
+      } else {
+        toast({
+          title: "Erro na sincronização",
+          description: "Não foi possível adicionar a visita ao Google Calendar.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao sincronizar com o Google Calendar:", error);
+      toast({
+        title: "Erro na sincronização",
+        description: "Ocorreu um erro ao sincronizar com o Google Calendar.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const renderActionButtons = (visit: Visit) => {
+    const buttons = [];
+    
+    if (visit.status === "pending" || visit.status === "approved") {
+      buttons.push(
+        <Button
+          key="update"
+          variant={visit.status === "pending" ? "default" : "outline"}
+          onClick={() => openStatusDialog(visit)}
+          className="mr-2"
+        >
+          {visit.status === "pending" ? "Processar" : "Atualizar"}
+        </Button>
+      );
+    }
+    
+    // Adiciona botão de sincronização para visitas aprovadas sem googleEventId
+    if (visit.status === "approved" && googleCalendarConfig.enabled && !visit.googleEventId) {
+      buttons.push(
+        <Button
+          key="sync"
+          variant="outline"
+          onClick={() => syncVisitToGoogleCalendar(visit)}
+          className="flex items-center"
+        >
+          <Calendar className="mr-2 h-4 w-4" />
+          <span className="hidden sm:inline">Sincronizar</span>
+        </Button>
+      );
+    }
+    
+    return buttons.length > 0 ? buttons : undefined;
+  };
+
   const openStatusDialog = (visit: Visit) => {
     setSelectedVisit(visit);
     setNewStatus("approved");
-    setNotes("");
-    setAssignedTo("");
+    setNotes(visit.notes || "");
+    setAssignedTo(visit.assignedTo || "");
     setDialogOpen(true);
   };
 
@@ -166,12 +303,23 @@ const ManageVisits = () => {
                     key={visit.id}
                     visit={visit}
                     actionButton={
-                      <Button
-                        variant="outline"
-                        onClick={() => openStatusDialog(visit)}
-                      >
-                        Atualizar
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => openStatusDialog(visit)}
+                        >
+                          Atualizar
+                        </Button>
+                        {googleCalendarConfig.enabled && !visit.googleEventId && (
+                          <Button
+                            variant="outline"
+                            onClick={() => syncVisitToGoogleCalendar(visit)}
+                          >
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Calendar
+                          </Button>
+                        )}
+                      </div>
                     }
                   />
                 ))}
@@ -209,16 +357,7 @@ const ManageVisits = () => {
                     <VisitCard
                       key={visit.id}
                       visit={visit}
-                      actionButton={
-                        visit.status === "pending" || visit.status === "approved" ? (
-                          <Button
-                            variant={visit.status === "pending" ? "default" : "outline"}
-                            onClick={() => openStatusDialog(visit)}
-                          >
-                            {visit.status === "pending" ? "Processar" : "Atualizar"}
-                          </Button>
-                        ) : undefined
-                      }
+                      actionButton={renderActionButtons(visit)}
                     />
                   )
                 )}
