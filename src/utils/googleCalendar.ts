@@ -102,41 +102,84 @@ Código da visita: ${visit.ticketCode || "N/A"}
   };
 }
 
-// Função para criar um novo evento no Google Calendar
+// Função para criar um novo evento no Google Calendar (implementação real)
 async function createGoogleCalendarEvent(
   calendarId: string,
   eventData: GoogleCalendarEvent,
   authToken: string
 ): Promise<any> {
-  // Em uma implementação real, aqui faria a chamada à API do Google Calendar
-  // Para fins de demonstração, apenas simulamos a criação
-  console.log(`Simulando criação de evento no calendário ${calendarId}`);
-  console.log("Dados do evento:", eventData);
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
   
-  // Retorna um ID simulado
-  return {
-    id: "event_" + Math.random().toString(36).substring(2, 9),
-    htmlLink: "https://calendar.google.com/calendar/event?eid=exemplo",
-    ...eventData
-  };
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(eventData)
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('Erro na API do Google Calendar:', errorData);
+    throw new Error(`Erro ao criar evento: ${response.status} ${response.statusText}`);
+  }
+  
+  return response.json();
 }
 
-// Função para atualizar um evento existente no Google Calendar
+// Função para atualizar um evento existente no Google Calendar (implementação real)
 async function updateGoogleCalendarEvent(
   calendarId: string,
   eventId: string,
   eventData: GoogleCalendarEvent,
   authToken: string
 ): Promise<any> {
-  // Em uma implementação real, aqui faria a chamada à API do Google Calendar
-  // Para fins de demonstração, apenas simulamos a atualização
-  console.log(`Simulando atualização do evento ${eventId} no calendário ${calendarId}`);
-  console.log("Dados atualizados:", eventData);
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
   
-  // Retorna os dados atualizados
-  return {
-    id: eventId,
-    htmlLink: "https://calendar.google.com/calendar/event?eid=exemplo",
-    ...eventData
-  };
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(eventData)
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('Erro na API do Google Calendar:', errorData);
+    throw new Error(`Erro ao atualizar evento: ${response.status} ${response.statusText}`);
+  }
+  
+  return response.json();
+}
+
+// Função para excluir um evento do Google Calendar
+export async function deleteGoogleCalendarEvent(
+  calendarId: string,
+  eventId: string,
+  authToken: string
+): Promise<boolean> {
+  try {
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
+    
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Erro na API do Google Calendar:', errorData);
+      throw new Error(`Erro ao excluir evento: ${response.status} ${response.statusText}`);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Erro ao excluir evento do Google Calendar:', error);
+    return false;
+  }
 }

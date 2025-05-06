@@ -17,16 +17,6 @@ Este é um sistema web de agendamento de visitas, desenvolvido para simplificar 
 - Shadcn-ui
 - Tailwind CSS
 
-## Como Executar o Projeto
-
-```sh
-# Instalar dependências
-npm install
-
-# Iniciar servidor de desenvolvimento
-npm run dev
-```
-
 ## Funcionalidades
 
 - Solicitação de visitas
