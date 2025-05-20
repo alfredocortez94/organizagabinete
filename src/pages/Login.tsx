@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -5,19 +6,49 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
+  // Usuário principal do sistema
+  const adminUser = {
+    email: 'admin@organizagabinete.com',
+    password: 'admin123'
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Aqui você pode adicionar sua lógica de autenticação
-    navigate('/dashboard');
+    
+    // Verificar se é o usuário principal
+    if (formData.email === adminUser.email && formData.password === adminUser.password) {
+      // Login bem-sucedido
+      localStorage.setItem('currentUser', JSON.stringify({
+        email: adminUser.email,
+        role: 'admin',
+        name: 'Administrador'
+      }));
+      
+      toast({
+        title: "Login realizado com sucesso",
+        description: "Bem-vindo ao sistema de gerenciamento!",
+      });
+      
+      navigate('/dashboard');
+    } else {
+      // Login falhou
+      toast({
+        title: "Falha no login",
+        description: "Email ou senha incorretos",
+        variant: "destructive",
+      });
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -25,13 +56,13 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
-      <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-white/90 shadow-xl border-0 transition-all duration-300 hover:shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 dark:from-blue-900 dark:via-indigo-900 dark:to-purple-900">
+      <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-white/90 dark:bg-gray-900/80 shadow-xl border-0 transition-all duration-300 hover:shadow-2xl">
         <CardHeader className="space-y-3 text-center pb-6">
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Organiza Gabinete
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-400">
+            Sistema de Agendamento
           </CardTitle>
-          <CardDescription className="text-muted-foreground text-base">
+          <CardDescription className="text-muted-foreground text-base dark:text-gray-300">
             Faça login para acessar o sistema
           </CardDescription>
         </CardHeader>
@@ -98,6 +129,12 @@ const Login = () => {
               Entrar
             </Button>
           </form>
+          
+          <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p>Para o primeiro acesso, use:</p>
+            <p className="font-medium">Email: admin@organizagabinete.com</p>
+            <p className="font-medium">Senha: admin123</p>
+          </div>
         </CardContent>
       </Card>
     </div>

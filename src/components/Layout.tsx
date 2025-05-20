@@ -1,184 +1,192 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { Calendar, Home, User, BarChart2, Settings, Menu, X, MessageSquare } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useTheme } from "./ThemeProvider";
+import { Moon, Sun, Settings, Calendar, BarChart2, MessageSquare, LogOut, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
+// Navigation items
+const navItems = [
+  {
+    label: "Início",
+    icon: <Home className="h-5 w-5" />,
+    href: "/dashboard",
+  },
+  {
+    label: "Visitas",
+    icon: <Calendar className="h-5 w-5" />,
+    href: "/manage",
+  },
+  {
+    label: "WhatsApp",
+    icon: <MessageSquare className="h-5 w-5" />,
+    href: "/whatsapp",
+  },
+  {
+    label: "Relatórios",
+    icon: <BarChart2 className="h-5 w-5" />,
+    href: "/reports",
+  },
+  {
+    label: "Configurações",
+    icon: <Settings className="h-5 w-5" />,
+    href: "/settings",
+  },
+];
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  
+  // Check if current path is active
+  const isActive = (path: string) => {
+    return location.pathname === path;
   };
-
-  const navigation = [
-    { name: "Início", path: "/", icon: Home },
-    { name: "Solicitar Visita", path: "/request", icon: Calendar },
-    { name: "Gerenciar Visitas", path: "/manage", icon: User },
-    { name: "WhatsApp", path: "/whatsapp", icon: MessageSquare },
-    { name: "Relatórios", path: "/reports", icon: BarChart2 },
-    { name: "Configurações", path: "/settings", icon: Settings },
-  ];
-
-  const userRoles = ["Assessor", "Político", "Comunicação"];
-
-  const handleRoleChange = (role: string) => {
-    toast({
-      title: "Perfil alterado",
-      description: `Você está visualizando o sistema como ${role}`,
-    });
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
+    navigate("/login");
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <header className="sticky top-0 z-40 bg-white shadow-sm lg:hidden">
-        <div className="flex items-center justify-between h-16 px-4">
-          <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold text-blue-700">Organiza Gabinete</span>
-          </Link>
-          <Button variant="ghost" size="icon" onClick={toggleMenu}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      {/* Navbar for desktop */}
+      <header className="sticky top-0 z-30 border-b bg-white/75 backdrop-blur-lg dark:bg-gray-900/75 dark:border-gray-800">
+        <div className="container flex items-center justify-between h-16 gap-6 sm:gap-8">
+          <div className="flex items-center">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="mr-2 md:hidden">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-menu"
+                  >
+                    <line x1="4" x2="20" y1="12" y2="12" />
+                    <line x1="4" x2="20" y1="6" y2="6" />
+                    <line x1="4" x2="20" y1="18" y2="18" />
+                  </svg>
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 sm:w-72 md:hidden">
+                <nav className="grid gap-6 p-4">
+                  <div className="grid gap-3 p-2">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+                          isActive(item.href)
+                            ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+                            : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                        )}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
+            <h1 className="text-xl font-bold">
+              <Link to="/dashboard" className="flex items-center gap-2">
+                <span className="hidden sm:inline-block">Organiza Gabinete</span>
+                <span className="sm:hidden">OG</span>
+              </Link>
+            </h1>
+          </div>
+          
+          <nav className="hidden md:flex items-center gap-2 md:gap-1 lg:gap-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-2 text-sm font-medium rounded-md transition-colors lg:gap-2",
+                  isActive(item.href)
+                    ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+                    : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                )}
+              >
+                {item.icon}
+                <span className="hidden xl:inline">{item.label}</span>
+              </Link>
+            ))}
+          </nav>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full overflow-hidden"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="" />
+                    <AvatarFallback className="text-xs">OG</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Meu Perfil</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings">Configurações</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
-
-      <div className="flex flex-1">
-        {/* Sidebar for desktop */}
-        <aside
-          className={cn(
-            "hidden fixed inset-y-0 z-50 flex-col bg-white border-r border-gray-200 pt-5 pb-4 w-64 lg:flex lg:relative transition-all duration-300",
-          )}
-        >
-          <div className="px-7 mb-9">
-            <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-blue-700">Organiza Gabinete</span>
-            </Link>
-          </div>
-          <div className="flex flex-col flex-1 overflow-y-auto">
-            <nav className="flex-1 px-3 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "group flex items-center px-3 py-2 text-sm font-medium rounded-md",
-                    location.pathname === item.path
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "mr-3 h-5 w-5",
-                      location.pathname === item.path
-                        ? "text-blue-700"
-                        : "text-gray-400 group-hover:text-gray-500"
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="px-3 mt-6">
-            <div className="p-3 mb-2 text-xs font-medium text-gray-500">Visualizar como:</div>
-            <div className="space-y-2">
-              {userRoles.map((role) => (
-                <Button
-                  key={role}
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => handleRoleChange(role)}
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  {role}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Mobile Sidebar */}
-        <aside
-          className={cn(
-            "fixed inset-0 z-40 flex flex-col w-full bg-white pt-5 pb-4 lg:hidden transform transition-transform duration-300 ease-in-out",
-            isMenuOpen ? "translate-x-0" : "-translate-x-full"
-          )}
-        >
-          <div className="px-6 mb-8 flex items-center justify-between">
-            <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-blue-700">VisitTracker</span>
-            </Link>
-            <Button variant="ghost" size="icon" onClick={toggleMenu}>
-              <X className="h-6 w-6" />
-            </Button>
-          </div>
-          <div className="flex flex-col flex-1 overflow-y-auto">
-            <nav className="flex-1 px-3 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "group flex items-center px-3 py-3 text-base font-medium rounded-md",
-                    location.pathname === item.path
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  )}
-                  onClick={toggleMenu}
-                >
-                  <item.icon
-                    className={cn(
-                      "mr-3 h-5 w-5",
-                      location.pathname === item.path
-                        ? "text-blue-700"
-                        : "text-gray-400 group-hover:text-gray-500"
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="px-3 mt-6">
-            <div className="p-3 mb-2 text-xs font-medium text-gray-500">Visualizar como:</div>
-            <div className="space-y-2">
-              {userRoles.map((role) => (
-                <Button
-                  key={role}
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    handleRoleChange(role);
-                    toggleMenu();
-                  }}
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  {role}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main
-          className={cn(
-            "flex-1 px-4 sm:px-6 lg:px-8 py-6"
-          )}
-        >
-          {children}
-        </main>
-      </div>
+      
+      {/* Main content */}
+      <main className="flex-1 py-6">{children}</main>
+      
+      {/* Footer */}
+      <footer className="border-t py-4 bg-white dark:bg-gray-900 dark:border-gray-800">
+        <div className="container">
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            &copy; {new Date().getFullYear()} Organiza Gabinete. Todos os direitos reservados.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
