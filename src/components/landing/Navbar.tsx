@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { User, ChevronRight, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
-import { Toggle } from "@/components/ui/toggle";
+import { Switch } from "@/components/ui/switch";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -21,39 +21,41 @@ const Navbar = () => {
           <NavigationMenu>
             <NavigationMenuList className="hidden md:flex">
               <NavigationMenuItem>
-                <a href="#recursos" className={navigationMenuTriggerStyle()}>
+                <a href="#recursos" className={navigationMenuTriggerStyle() + " hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"}>
                   Recursos
                 </a>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <a href="#planos" className={navigationMenuTriggerStyle()}>
+                <a href="#planos" className={navigationMenuTriggerStyle() + " hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"}>
                   Planos
                 </a>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <a href="#depoimentos" className={navigationMenuTriggerStyle()}>
+                <a href="#depoimentos" className={navigationMenuTriggerStyle() + " hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"}>
                   Depoimentos
                 </a>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <a href="/contact" className={navigationMenuTriggerStyle()}>
+                <a href="/contact" className={navigationMenuTriggerStyle() + " hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"}>
                   Contato
                 </a>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
           <div className="flex items-center gap-2">
-            <Toggle
-              aria-label="Alternar tema"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="mr-2"
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Toggle>
+            <div className="flex items-center mr-2 bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-1">
+              <Sun className="h-4 w-4 text-yellow-500 dark:text-yellow-300 mr-1" />
+              <Switch
+                checked={theme === "dark"}
+                onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="data-[state=checked]:bg-blue-600"
+              />
+              <Moon className="h-4 w-4 text-blue-700 dark:text-blue-400 ml-1" />
+            </div>
             <Button 
               variant="outline" 
               onClick={() => navigate("/login")}
-              className="hidden sm:flex"
+              className="hidden sm:flex border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/30"
             >
               <User className="mr-2 h-4 w-4" />
               Login

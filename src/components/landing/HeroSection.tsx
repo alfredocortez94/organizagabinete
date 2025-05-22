@@ -8,55 +8,54 @@ const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="relative min-h-[70vh] md:h-screen flex flex-col justify-center overflow-hidden">
-      {/* Imagem de fundo */}
+    <section className="relative min-h-[80vh] md:min-h-screen flex flex-col justify-center overflow-hidden bg-gray-950">
+      {/* Imagem de fundo com efeito de blur */}
       <div className="absolute inset-0 z-0">
         <img 
           src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" 
           alt="Organiza Gabinete" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-70"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-indigo-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/70 via-indigo-900/70 to-gray-900/90"></div>
       </div>
       
       {/* Conteúdo sobre a imagem */}
-      <div className="container px-4 md:px-6 relative z-10 mx-auto text-white py-12 md:py-20">
-        <div className="grid gap-6 lg:grid-cols-2 items-center">
-          <div className="flex flex-col justify-center space-y-4">
-            <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter">
-                <span className="text-white">
-                  Organiza Gabinete
-                </span>
-              </h1>
-              <p className="text-blue-100 max-w-[700px] text-base sm:text-lg md:text-xl/relaxed">
-                Simplifique o agendamento de visitas e transforme a gestão do seu gabinete com nossa plataforma intuitiva.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-4 mt-4">
-              <Button 
-                onClick={() => navigate("/login")}
-                className="bg-white text-blue-600 hover:bg-blue-50 px-6 py-2 sm:px-8 sm:py-6 rounded-md text-base sm:text-lg w-full sm:w-auto font-medium"
-                size="lg"
-              >
-                Começar agora
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => navigate("/contact")}
-                size="lg"
-                className="border-white border-2 text-white hover:bg-white/10 w-full sm:w-auto font-medium"
-              >
-                Saiba mais
-              </Button>
-            </div>
+      <div className="container px-6 md:px-8 relative z-10 mx-auto text-white py-16 md:py-24">
+        <div className="flex flex-col max-w-[800px] mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-4 animate-fade-in">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-blue-200">
+              Organiza Gabinete
+            </span>
+          </h1>
+          
+          <p className="text-blue-100 mx-auto max-w-[700px] text-base sm:text-lg md:text-xl mb-8 font-light animate-fade-in opacity-0" style={{animationDelay: '0.2s'}}>
+            Simplifique o agendamento de visitas e transforme a gestão do seu gabinete com uma 
+            plataforma intuitiva inspirada nos melhores padrões de usabilidade.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4 animate-fade-in opacity-0" style={{animationDelay: '0.4s'}}>
+            <Button 
+              onClick={() => navigate("/request")}
+              className="bg-white text-blue-600 hover:bg-white/90 px-6 py-6 rounded-full text-base sm:text-lg font-medium transition-all"
+              size="lg"
+            >
+              Começar agora
+              <ChevronRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/contact")}
+              size="lg"
+              className="border-white border-2 text-white hover:bg-white/10 px-6 py-6 rounded-full transition-all"
+            >
+              Saiba mais
+            </Button>
           </div>
         </div>
       </div>
       
-      {/* Gradiente na parte inferior para transição suave */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-blue-50 to-transparent dark:from-gray-900"></div>
+      {/* Gradiente na parte inferior para transição suave - minimizado */}
+      <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent dark:from-[#000000]/5"></div>
     </section>
   );
 };

@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GoogleCalendarConfigComponent from "@/components/google-calendar/GoogleCalendarConfig";
-import { GoogleCalendarConfig } from "@/tipos/whatsapp";
+// Corrigida a importação para usar o tipo do arquivo correto
+import { GoogleCalendarConfig } from "@/tipos/googleCalendar";
 import { useToast } from "@/components/ui/use-toast";
 import { syncVisitWithGoogleCalendar } from "@/utils/googleCalendar";
 import { useVisit } from "@/context/VisitContext";

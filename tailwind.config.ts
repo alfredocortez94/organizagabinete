@@ -1,5 +1,6 @@
 
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -19,6 +20,19 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: [
+					"SF Pro Display",
+					"SF Pro",
+					"-apple-system",
+					"BlinkMacSystemFont",
+					"system-ui",
+					"Segoe UI",
+					"Roboto",
+					"Ubuntu",
+					"sans-serif"
+				],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -64,17 +78,33 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				status: {
-					pending: '#FFC107',
-					approved: '#4CAF50',
-					rejected: '#F44336',
-					completed: '#2196F3',
-					cancelled: '#9E9E9E'
+					pending: '#FF9500',
+					approved: '#30D158',
+					rejected: '#FF453A',
+					completed: '#0A84FF',
+					cancelled: '#8E8E93'
+				},
+				apple: {
+					blue: '#0A84FF',
+					green: '#30D158', 
+					red: '#FF453A',
+					orange: '#FF9F0A',
+					purple: '#BF5AF2',
+					yellow: '#FFD60A',
+					gray: '#8E8E93',
+					background: '#F5F5F7',
+					card: '#FFFFFF'
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'apple': '0 4px 24px -6px rgba(0, 0, 0, 0.12)',
+				'apple-dark': '0 4px 24px -6px rgba(0, 0, 0, 0.25)',
+				'apple-hover': '0 8px 32px -8px rgba(0, 0, 0, 0.15)',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -92,13 +122,64 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					from: {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					to: {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'fade-in-left': {
+					from: {
+						opacity: '0',
+						transform: 'translateX(-20px)'
+					},
+					to: {
+						opacity: '1',
+						transform: 'translateX(0)'
+					}
+				},
+				'pulse-soft': {
+					'0%, 100%': {
+						opacity: '1',
+						transform: 'scale(1)'
+					},
+					'50%': {
+						opacity: '0.85',
+						transform: 'scale(1.02)'
+					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0)'
+					},
+					'50%': {
+						transform: 'translateY(-5px)'
+					}
+				},
+				'shimmer': {
+					'0%': {
+						backgroundPosition: '-1000px 0',
+					},
+					'100%': {
+						backgroundPosition: '1000px 0',
+					},
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.5s ease-out forwards',
+				'fade-in-left': 'fade-in-left 0.5s ease-out forwards',
+				'pulse-soft': 'pulse-soft 3s infinite ease-in-out',
+				'float': 'float 5s infinite ease-in-out',
+				'shimmer': 'shimmer 2s infinite linear'
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate]
 } satisfies Config;

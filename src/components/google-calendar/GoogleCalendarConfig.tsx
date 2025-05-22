@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { Calendar, Save } from "lucide-react";
-import { GoogleCalendarConfig } from "@/tipos/whatsapp";
+import { GoogleCalendarConfig } from "@/tipos/googleCalendar";
 
 interface GoogleCalendarConfigProps {
   config: GoogleCalendarConfig;
@@ -29,8 +28,8 @@ const GoogleCalendarConfigComponent: React.FC<GoogleCalendarConfigProps> = ({ co
   const handleSave = () => {
     const updatedConfig: GoogleCalendarConfig = {
       enabled,
-      calendarId: calendarId.trim() || undefined,
-      authToken: authToken.trim() || undefined,
+      calendarId: calendarId.trim(),
+      authToken: authToken.trim(),
       lastSyncedAt: enabled ? new Date().toISOString() : config.lastSyncedAt
     };
 

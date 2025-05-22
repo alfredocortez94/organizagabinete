@@ -58,14 +58,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-[#F5F5F7] dark:bg-[#000000]">
       {/* Navbar for desktop */}
-      <header className="sticky top-0 z-30 border-b bg-white/75 backdrop-blur-lg dark:bg-gray-900/75 dark:border-gray-800">
+      <header className="sticky top-0 z-30 border-b glass-effect">
         <div className="container flex items-center justify-between h-16 gap-6 sm:gap-8">
           <div className="flex items-center">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="mr-2 md:hidden">
+                <Button variant="ghost" size="icon" className="mr-2 md:hidden text-apple-blue dark:text-apple-blue">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -85,46 +85,47 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 sm:w-72 md:hidden">
-                <nav className="grid gap-6 p-4">
-                  <div className="grid gap-3 p-2">
+              <SheetContent side="left" className="w-[280px] sm:w-[320px] md:hidden">
+                <div className="py-4">
+                  <div className="text-xl font-semibold mb-6 px-2">Organiza Gabinete</div>
+                  <nav className="space-y-1.5 px-2 mt-4">
                     {navItems.map((item) => (
                       <Link
                         key={item.href}
                         to={item.href}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+                          "flex items-center gap-3 rounded-full px-4 py-2.5 transition-all",
                           isActive(item.href)
-                            ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
-                            : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                            ? "bg-apple-blue text-white"
+                            : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
                         )}
                       >
                         {item.icon}
                         {item.label}
                       </Link>
                     ))}
-                  </div>
-                </nav>
+                  </nav>
+                </div>
               </SheetContent>
             </Sheet>
-            <h1 className="text-xl font-bold">
-              <Link to="/dashboard" className="flex items-center gap-2">
+            <h1 className="text-xl font-semibold">
+              <Link to="/dashboard" className="flex items-center gap-2 tracking-tight">
                 <span className="hidden sm:inline-block">Organiza Gabinete</span>
                 <span className="sm:hidden">OG</span>
               </Link>
             </h1>
           </div>
           
-          <nav className="hidden md:flex items-center gap-2 md:gap-1 lg:gap-2">
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-1 px-2 py-2 text-sm font-medium rounded-md transition-colors lg:gap-2",
+                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-full transition-all lg:px-4",
                   isActive(item.href)
-                    ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
-                    : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                    ? "bg-apple-blue text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
                 )}
               >
                 {item.icon}
@@ -138,11 +139,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="rounded-full h-10 w-10 bg-gray-100 dark:bg-gray-800 transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
             >
               {theme === "dark" ? (
-                <Sun className="h-5 w-5" />
+                <Sun className="h-[1.3rem] w-[1.3rem] text-yellow-400" />
               ) : (
-                <Moon className="h-5 w-5" />
+                <Moon className="h-[1.3rem] w-[1.3rem] text-slate-700" />
               )}
               <span className="sr-only">Toggle theme</span>
             </Button>
@@ -152,21 +154,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-full overflow-hidden"
+                  className="rounded-full overflow-hidden focus-visible:ring-offset-0 focus-visible:ring-0"
                 >
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-10 w-10 border-2 border-gray-200 dark:border-gray-700">
                     <AvatarImage src="" />
-                    <AvatarFallback className="text-xs">OG</AvatarFallback>
+                    <AvatarFallback className="text-base bg-apple-blue text-white">OG</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Meu Perfil</DropdownMenuItem>
-                <DropdownMenuItem asChild>
+              <DropdownMenuContent align="end" className="w-56 mt-1 p-1.5">
+                <div className="flex flex-col p-2 mb-1">
+                  <span className="text-sm font-medium">Usuário</span>
+                  <span className="text-xs text-muted-foreground">admin@gabinete.org</span>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="rounded-md cursor-pointer py-1.5 px-2">
+                  Meu Perfil
+                </DropdownMenuItem>
+                <DropdownMenuItem className="rounded-md cursor-pointer py-1.5 px-2" asChild>
                   <Link to="/settings">Configurações</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                <DropdownMenuItem onClick={handleLogout} className="rounded-md cursor-pointer text-red-600 py-1.5 px-2">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair
                 </DropdownMenuItem>
@@ -177,10 +186,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </header>
       
       {/* Main content */}
-      <main className="flex-1 py-6">{children}</main>
+      <main className="flex-1 py-6 container px-4 md:px-6">{children}</main>
       
       {/* Footer */}
-      <footer className="border-t py-4 bg-white dark:bg-gray-900 dark:border-gray-800">
+      <footer className="border-t py-6 bg-white/60 dark:bg-[#1C1C1E]/60 dark:border-gray-800 backdrop-blur-sm">
         <div className="container">
           <p className="text-center text-sm text-gray-500 dark:text-gray-400">
             &copy; {new Date().getFullYear()} Organiza Gabinete. Todos os direitos reservados.

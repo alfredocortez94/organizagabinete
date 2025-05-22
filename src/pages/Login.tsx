@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import SimpleCaptcha from '@/components/login/SimpleCaptcha';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [captchaVerified, setCaptchaVerified] = useState(false);
 
   // Usuário principal do sistema
   const adminUser = {
@@ -25,6 +27,15 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!captchaVerified) {
+      toast({
+        title: "Verificação necessária",
+        description: "Por favor, complete a verificação CAPTCHA",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Verificar se é o usuário principal
     if (formData.email === adminUser.email && formData.password === adminUser.password) {
@@ -53,6 +64,10 @@ const Login = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleCaptchaVerify = (verified: boolean) => {
+    setCaptchaVerified(verified);
   };
 
   return (
@@ -122,9 +137,14 @@ const Login = () => {
               </div>
             </div>
 
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <SimpleCaptcha onVerify={handleCaptchaVerify} />
+            </div>
+
             <Button 
               type="submit" 
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-lg"
+              disabled={!captchaVerified}
             >
               Entrar
             </Button>

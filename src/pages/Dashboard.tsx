@@ -10,6 +10,7 @@ import { useVisit } from "@/context/VisitContext";
 import StatusBadge from "@/components/StatusBadge";
 import { Link } from "react-router-dom";
 import { formatDate } from "@/lib/utils";
+import PerformanceChart from "@/components/dashboard/PerformanceChart";
 
 const Dashboard = () => {
   const { visits } = useVisit();
@@ -97,6 +98,11 @@ const Dashboard = () => {
               </Button>
             </CardContent>
           </Card>
+        </div>
+
+        {/* New Performance Chart */}
+        <div className="mb-8">
+          <PerformanceChart />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-5 mb-8">

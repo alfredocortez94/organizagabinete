@@ -1,52 +1,32 @@
 
-// WhatsApp contact types
-export interface WhatsAppContact {
+import { GoogleCalendarConfig } from "./googleCalendar";
+
+export interface Visit {
+  id: string;
+  visitorName: string;
+  visitorCPF: string;
+  visitorEmail: string;
+  visitorPhone: string;
+  visitDate: string;
+  visitTime: string;
+  purpose: string;
+  status: VisitStatus;
+  notes?: string;
+  assignedTo?: string;
+  ticketCode?: string;
+  googleEventId?: string;
+}
+
+export type VisitStatus = "pending" | "approved" | "completed" | "rejected" | "cancelled";
+
+export interface Contact {
   id: string;
   name: string;
   phone: string;
   email?: string;
-  tags: string[];
-  groups: string[];
-  notes?: string;
-  lastMessage?: Date;
+  source: 'manual' | 'import' | 'visit';
+  createdAt: string;
 }
 
-export interface WhatsAppGroup {
-  id: string;
-  name: string;
-  members: string[];
-}
-
-export interface WhatsAppTemplate {
-  id: string;
-  name: string;
-  content: string;
-  variables: string[];
-}
-
-export interface WhatsAppApiConfig {
-  apiKey?: string;
-  instanceId?: string;
-  phoneNumberId?: string;
-  authType: 'token' | 'oauth2';
-  baseUrl?: string;
-  enabled: boolean;
-  provider: 'whatsapp-api' | 'twilio' | 'callmebot' | 'chat-api';
-}
-
-export interface WhatsAppMessage {
-  id: string;
-  contactId: string;
-  contactName: string;
-  message: string;
-  timestamp: Date;
-  status: 'sent' | 'delivered' | 'read' | 'failed';
-  direction: 'inbound' | 'outbound';
-}
-
-export interface GoogleCalendarConfig {
-  enabled: boolean;
-  calendarId?: string;
-  authToken?: string;
-  lastSyncedAt?: string;
-}
+// Re-export GoogleCalendarConfig para manter compatibilidade com os arquivos existentes
+export type { GoogleCalendarConfig } from "./googleCalendar";

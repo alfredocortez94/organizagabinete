@@ -1,21 +1,5 @@
-
-import { Visit } from "@/context/VisitContext";
-import { GoogleCalendarConfig } from "@/tipos/whatsapp";
-
-export interface GoogleCalendarEvent {
-  id?: string;
-  summary: string;
-  description: string;
-  location?: string;
-  start: {
-    dateTime: string;
-    timeZone: string;
-  };
-  end: {
-    dateTime: string;
-    timeZone: string;
-  };
-}
+import { Visit } from "@/tipos/whatsapp";
+import { GoogleCalendarConfig, GoogleCalendarEvent } from "@/tipos/googleCalendar";
 
 // Função para criar ou atualizar um evento no Google Calendar
 export async function syncVisitWithGoogleCalendar(
@@ -102,7 +86,7 @@ Código da visita: ${visit.ticketCode || "N/A"}
   };
 }
 
-// Função para criar um novo evento no Google Calendar (implementação real)
+// Função para criar um novo evento no Google Calendar
 async function createGoogleCalendarEvent(
   calendarId: string,
   eventData: GoogleCalendarEvent,
@@ -128,7 +112,7 @@ async function createGoogleCalendarEvent(
   return response.json();
 }
 
-// Função para atualizar um evento existente no Google Calendar (implementação real)
+// Função para atualizar um evento existente no Google Calendar
 async function updateGoogleCalendarEvent(
   calendarId: string,
   eventId: string,

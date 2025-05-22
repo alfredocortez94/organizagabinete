@@ -1,17 +1,16 @@
-
 import React from "react";
 import { Calendar, MessageSquare, Clock, FileText, Users, Check } from "lucide-react";
 
 const FeaturesSection = () => {
   return (
-    <section id="recursos" className="py-20 bg-white">
+    <section id="recursos" className="pt-0 pb-6 bg-white">
       <div className="container px-4 md:px-6 max-w-screen-xl mx-auto">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
               Recursos Poderosos
             </h2>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
               Tudo que você precisa para transformar o atendimento do seu gabinete
             </p>
           </div>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Search, Calendar } from "lucide-react";
 import Layout from "@/components/Layout";
 import { useVisit, Visit, VisitStatus } from "@/context/VisitContext";
@@ -34,13 +32,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDate } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { GoogleCalendarConfig } from "@/tipos/whatsapp";
+// Corrigida a importação para usar o tipo do arquivo correto
+import { GoogleCalendarConfig } from "@/tipos/googleCalendar";
 import { syncVisitWithGoogleCalendar } from "@/utils/googleCalendar";
 
 const ManageVisits = () => {
@@ -52,7 +50,6 @@ const ManageVisits = () => {
   const [notes, setNotes] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-
   const [googleCalendarConfig, setGoogleCalendarConfig] = useState<GoogleCalendarConfig>(() => {
     const savedConfig = localStorage.getItem("googleCalendarConfig");
     return savedConfig 
