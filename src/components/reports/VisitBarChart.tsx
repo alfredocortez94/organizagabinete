@@ -35,15 +35,15 @@ const VisitBarChart: React.FC<VisitBarChartProps> = ({ barChartData }) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[300px] xl:h-[350px]">
           {barChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barChartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+              <BarChart data={barChartData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
+                <XAxis dataKey="date" fontSize={12} angle={-45} textAnchor="end" height={60} />
+                <YAxis fontSize={12} width={40} />
                 <Tooltip />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: '12px', marginTop: '10px' }} />
                 <Bar dataKey="visits" fill="#3B82F6" name="Visitas" />
               </BarChart>
             </ResponsiveContainer>

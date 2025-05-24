@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
@@ -61,13 +62,21 @@ const PublicHome = () => {
     
     addHoverEffects();
     
+    // Limpar os event listeners quando o componente for desmontado
+    return () => {
+      const cards = document.querySelectorAll('.apple-card, .feature-card');
+      cards.forEach(card => {
+        card.removeEventListener('mouseenter', () => {});
+        card.removeEventListener('mouseleave', () => {});
+      });
+    };
   }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#000000]">
       <Navbar />
       <HeroSection />
-      <div className="mt-[-120px]"> {/* Adiciona margem negativa para aproximar as seções */}
+      <div className="mt-[-120px] md:mt-[-100px] lg:mt-[-80px]"> {/* Margem negativa responsiva */}
         <FeaturesSection />
         <FeatureCards />
         <PricingSection />

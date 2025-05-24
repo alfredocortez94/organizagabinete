@@ -34,7 +34,7 @@ const StatusPieChart: React.FC<StatusPieChartProps> = ({ pieData }) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[300px] xl:h-[350px]">
           {pieData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -42,13 +42,13 @@ const StatusPieChart: React.FC<StatusPieChartProps> = ({ pieData }) => {
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  labelLine={true}
-                  outerRadius={120}
+                  labelLine={false}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="name"
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  label={({ name, percent }) => 
+                    percent > 0.05 ? `${name}: ${(percent * 100).toFixed(0)}%` : ''
                   }
                 >
                   {pieData.map((entry, index) => (
@@ -56,7 +56,7 @@ const StatusPieChart: React.FC<StatusPieChartProps> = ({ pieData }) => {
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => [`${value} visitas`, "Quantidade"]} />
-                <Legend />
+                <Legend layout="horizontal" verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           ) : (

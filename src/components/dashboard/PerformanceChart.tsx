@@ -44,7 +44,7 @@ const chartConfig = {
 
 const PerformanceChart = () => {
   return (
-    <Card className="col-span-5 shadow-apple dark:shadow-apple-dark">
+    <Card className="w-full shadow-apple dark:shadow-apple-dark">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -58,12 +58,12 @@ const PerformanceChart = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-[300px] sm:h-[350px] md:h-[400px] lg:h-[300px] xl:h-[350px]">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={data}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
@@ -71,14 +71,17 @@ const PerformanceChart = () => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: '#8E8E93' }}
+                  fontSize={12}
                 />
                 <YAxis 
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: '#8E8E93' }}
+                  fontSize={12}
+                  width={40}
                 />
                 <Tooltip content={<ChartTooltipContent />} />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: '12px', marginTop: '10px' }} />
                 <Area
                   type="monotone"
                   dataKey="visits"
