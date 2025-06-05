@@ -73,7 +73,7 @@ const PublicHome = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#000000]">
+    <div className="min-h-screen bg-white">
       <Navbar />
       <HeroSection />
       <div className="mt-[-120px] md:mt-[-100px] lg:mt-[-80px]"> {/* Margem negativa responsiva */}

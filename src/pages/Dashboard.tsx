@@ -10,8 +10,12 @@ import DashboardCalendar from "@/components/dashboard/DashboardCalendar";
 import VisitTabsContent from "@/components/dashboard/VisitTabsContent";
 
 const Dashboard = () => {
+  console.log('Dashboard component is rendering');
+  
   const { visits } = useVisit();
   const [date, setDate] = React.useState<Date | undefined>(new Date());
+
+  console.log('Visits data:', visits);
 
   // Get today's visits
   const todayString = new Date().toISOString().split("T")[0];
@@ -41,6 +45,8 @@ const Dashboard = () => {
           (visit.status === "approved" || visit.status === "pending")
       )
     : [];
+
+  console.log('Dashboard data calculated successfully');
 
   return (
     <Layout>

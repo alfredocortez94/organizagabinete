@@ -1,46 +1,43 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, MessageCircle } from "lucide-react";
 
 const PricingSection = () => {
   const navigate = useNavigate();
+  const [includeWhatsApp, setIncludeWhatsApp] = useState(true);
 
-  const planos = [
+  const planosBase = [
     {
       titulo: "Mensal",
-      preco: "R$ 4.500",
+      preco: "R$ 149,90",
       periodo: "/mês",
       destaque: false,
       recursos: [
-       "Acesso a todas as funcionalidades",
-        "Suporte VIP",
-        "Usuários ilimitados",
-        "Agendamentos ilimitados",
-        "Relatórios avançados",
-        "Treinamento personalizado"
+        "Acesso a todas as funcionalidades",
+        "Suporte por e-mail",
+        "Até 5 usuários",
+        "1000 agendamentos mensais"
       ]
     },
     {
       titulo: "Semestral",
-      preco: "R$ 3.500",
+      preco: "R$ 119,90",
       periodo: "/mês",
       destaque: true,
       desconto: "Economize 20%",
       recursos: [
         "Acesso a todas as funcionalidades",
-        "Suporte VIP",
-        "Usuários ilimitados",
+        "Suporte prioritário",
+        "Até 10 usuários",
         "Agendamentos ilimitados",
-        "Relatórios avançados",
-        "Treinamento personalizado"
+        "Exportação de relatórios"
       ]
     },
     {
       titulo: "Anual",
-      preco: "R$ 3.000",
+      preco: "R$ 99,90",
       periodo: "/mês",
       destaque: false,
       desconto: "Economize 33%",
@@ -55,6 +52,15 @@ const PricingSection = () => {
     }
   ];
 
+  const planosComWhatsApp = planosBase.map(plano => ({
+    ...plano,
+    preco: plano.titulo === "Mensal" ? "R$ 179,90" : 
+           plano.titulo === "Semestral" ? "R$ 149,90" : "R$ 129,90",
+    recursos: [...plano.recursos, "Integração completa com WhatsApp", "Envio automático de mensagens", "Gestão de contatos WhatsApp"]
+  }));
+
+  const planos = includeWhatsApp ? planosComWhatsApp : planosBase;
+
   return (
     <section id="planos" className="py-20 bg-gray-50">
       <div className="container px-4 md:px-6 max-w-screen-xl mx-auto">
@@ -68,7 +74,37 @@ const PricingSection = () => {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+
+        {/* Toggle para selecionar tipo de plano */}
+        <div className="flex justify-center mt-8 mb-12">
+          <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-2 shadow-lg border border-white/20">
+            <div className="flex space-x-1">
+              <button
+                onClick={() => setIncludeWhatsApp(true)}
+                className={`px-8 py-4 rounded-xl font-semibold transition-all duration-300 ease-out flex items-center gap-3 ${
+                  includeWhatsApp 
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-[1.02]' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-white/40'
+                }`}
+              >
+                <MessageCircle className="h-5 w-5" />
+                Com WhatsApp
+              </button>
+              <button
+                onClick={() => setIncludeWhatsApp(false)}
+                className={`px-8 py-4 rounded-xl font-semibold transition-all duration-300 ease-out ${
+                  !includeWhatsApp 
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-[1.02]' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-white/40'
+                }`}
+              >
+                Planos Básicos
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {planos.map((plano, index) => (
             <Card key={index} className={`relative ${plano.destaque ? 'border-blue-500 shadow-lg' : ''}`}>
               {plano.destaque && (
@@ -91,7 +127,7 @@ const PricingSection = () => {
                   {plano.recursos.map((recurso, idx) => (
                     <li key={idx} className="flex items-center">
                       <Check className="h-5 w-5 text-green-500 mr-2 shrink-0" />
-                      <span>{recurso}</span>
+                      <span className={idx >= planosBase[index].recursos.length ? 'text-blue-600 font-medium' : ''}>{recurso}</span>
                     </li>
                   ))}
                 </ul>

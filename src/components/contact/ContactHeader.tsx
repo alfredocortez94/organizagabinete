@@ -2,13 +2,20 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User, ChevronRight, Moon, Sun } from "lucide-react";
-import { useTheme } from "@/components/ThemeProvider";
-import { Toggle } from "@/components/ui/toggle";
+import { User, ChevronRight } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const ContactHeader = () => {
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+  
+  const handleRegisterClick = () => {
+    toast({
+      title: "Cadastro Temporariamente Indisponível",
+      description: "O cadastro de novos usuários está temporariamente desabilitado. Entre em contato conosco para mais informações.",
+      variant: "destructive",
+    });
+  };
   
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -20,13 +27,6 @@ const ContactHeader = () => {
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="flex items-center gap-2">
-            <Toggle
-              aria-label="Alternar tema"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="mr-2"
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Toggle>
             <Button 
               variant="outline" 
               onClick={() => navigate("/login")}
@@ -36,8 +36,9 @@ const ContactHeader = () => {
               Login
             </Button>
             <Button 
-              onClick={() => navigate("/login")}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              onClick={handleRegisterClick}
+              disabled
+              className="bg-gray-400 hover:bg-gray-400 cursor-not-allowed opacity-50"
             >
               Cadastre-se
               <ChevronRight className="ml-1 h-4 w-4" />

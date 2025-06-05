@@ -40,15 +40,26 @@ import { useToast } from "@/components/ui/use-toast";
 // Corrigida a importação para usar o tipo do arquivo correto
 import { GoogleCalendarConfig } from "@/tipos/googleCalendar";
 import { syncVisitWithGoogleCalendar } from "@/utils/googleCalendar";
+import AdvancedFilters, { FilterOptions } from "@/components/visits/AdvancedFilters";
+import { startOfDay, endOfDay, parseISO, isAfter, isBefore, isEqual } from "date-fns";
 
 const ManageVisits = () => {
   const { visits, updateVisitStatus, updateVisitGoogleEventId } = useVisit();
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [newStatus, setNewStatus] = useState<VisitStatus>("approved");
   const [notes, setNotes] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
+  
+  // Estado para os filtros avançados
+  const [filters, setFilters] = useState<FilterOptions>({
+    searchTerm: "",
+    status: [],
+    startDate: undefined,
+    endDate: undefined,
+    sortBy: "visitDate",
+    sortOrder: "desc",
+  });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [googleCalendarConfig, setGoogleCalendarConfig] = useState<GoogleCalendarConfig>(() => {
     const savedConfig = localStorage.getItem("googleCalendarConfig");
@@ -67,7 +78,12 @@ const ManageVisits = () => {
 
   const handleUpdateStatus = async () => {
     if (selectedVisit) {
-      updateVisitStatus(selectedVisit.id, newStatus, assignedTo, notes);
+      // Combinando assignedTo e notes em um único campo de notas
+      const combinedNotes = assignedTo 
+        ? `Responsável: ${assignedTo}${notes ? `\n\n${notes}` : ''}` 
+        : notes;
+      
+      updateVisitStatus(selectedVisit.id, newStatus, combinedNotes);
       
       // Se a visita foi aprovada e a sincronização com o Google Calendar está ativada
       if (newStatus === "approved" && googleCalendarConfig.enabled && 
@@ -115,21 +131,88 @@ const ManageVisits = () => {
     }
   };
 
-  const pendingVisits = visits.filter((visit) => visit.status === "pending");
-  const approvedVisits = visits.filter((visit) => visit.status === "approved");
-  const completedVisits = visits.filter(
-    (visit) => visit.status === "completed" || visit.status === "rejected" || visit.status === "cancelled"
-  );
-
-  const filteredVisits = (statusList: string[]) => {
+  // Função para aplicar todos os filtros às visitas
+  const applyFilters = (visits: Visit[]) => {
     return visits
-      .filter((visit) => statusList.includes(visit.status))
-      .filter(
-        (visit) =>
-          visit.visitorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          visit.visitorCPF.includes(searchTerm) ||
-          visit.id.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      .filter(visit => {
+        // Filtro por status (se nenhum status selecionado, mostra todos)
+        if (filters.status.length > 0 && !filters.status.includes(visit.status)) {
+          return false;
+        }
+        
+        // Filtro por termo de busca
+        if (filters.searchTerm) {
+          const searchLower = filters.searchTerm.toLowerCase();
+          const nameMatch = visit.visitorName.toLowerCase().includes(searchLower);
+          const cpfMatch = visit.visitorCPF.includes(filters.searchTerm);
+          const idMatch = visit.id.toLowerCase().includes(searchLower);
+          const purposeMatch = visit.purpose?.toLowerCase().includes(searchLower);
+          
+          if (!nameMatch && !cpfMatch && !idMatch && !purposeMatch) {
+            return false;
+          }
+        }
+        
+        // Filtro por data inicial
+        if (filters.startDate) {
+          const visitDate = typeof visit.visitDate === 'string' 
+            ? parseISO(visit.visitDate) 
+            : visit.visitDate;
+          
+          if (visitDate && !isAfter(visitDate, startOfDay(filters.startDate)) && 
+              !isEqual(visitDate, startOfDay(filters.startDate))) {
+            return false;
+          }
+        }
+        
+        // Filtro por data final
+        if (filters.endDate) {
+          const visitDate = typeof visit.visitDate === 'string' 
+            ? parseISO(visit.visitDate) 
+            : visit.visitDate;
+          
+          if (visitDate && !isBefore(visitDate, endOfDay(filters.endDate)) && 
+              !isEqual(visitDate, endOfDay(filters.endDate))) {
+            return false;
+          }
+        }
+        
+        return true;
+      })
+      .sort((a, b) => {
+        // Ordenação
+        if (filters.sortBy === "visitDate") {
+          const dateA = new Date(a.visitDate).getTime();
+          const dateB = new Date(b.visitDate).getTime();
+          return filters.sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+        } else if (filters.sortBy === "createdAt") {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return filters.sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+        } else if (filters.sortBy === "visitorName") {
+          return filters.sortOrder === "asc" 
+            ? a.visitorName.localeCompare(b.visitorName) 
+            : b.visitorName.localeCompare(a.visitorName);
+        }
+        return 0;
+      });
+  };
+  
+  // Função para obter visitas filtradas por status
+  const getVisitsByStatus = (statusList: string[]) => {
+    return applyFilters(visits.filter(visit => statusList.includes(visit.status)));
+  };
+  
+  // Função para limpar todos os filtros
+  const clearFilters = () => {
+    setFilters({
+      searchTerm: "",
+      status: [],
+      startDate: undefined,
+      endDate: undefined,
+      sortBy: "visitDate",
+      sortOrder: "desc",
+    });
   };
 
   const syncVisitToGoogleCalendar = async (visit: Visit) => {
@@ -220,14 +303,22 @@ const ManageVisits = () => {
       <div className="container">
         <h1 className="text-2xl font-bold mb-6">Gerenciar Visitas</h1>
 
+        <div className="mb-4">
+          <AdvancedFilters 
+            filters={filters} 
+            onFilterChange={setFilters} 
+            onClearFilters={clearFilters} 
+          />
+        </div>
+
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="Buscar por nome, CPF ou número da solicitação"
               className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={filters.searchTerm}
+              onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
             />
           </div>
           
@@ -251,9 +342,9 @@ const ManageVisits = () => {
           <TabsList>
             <TabsTrigger value="pending" className="relative">
               Pendentes
-              {pendingVisits.length > 0 && (
+              {getVisitsByStatus(["pending"]).length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                  {pendingVisits.length}
+                  {getVisitsByStatus(["pending"]).length}
                 </span>
               )}
             </TabsTrigger>
@@ -263,7 +354,7 @@ const ManageVisits = () => {
           </TabsList>
 
           <TabsContent value="pending" className="space-y-4">
-            {filteredVisits(["pending"]).length === 0 ? (
+            {getVisitsByStatus(["pending"]).length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center">
                   <p className="text-gray-500">Nenhuma solicitação pendente encontrada.</p>
@@ -271,7 +362,7 @@ const ManageVisits = () => {
               </Card>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredVisits(["pending"]).map((visit) => (
+                {getVisitsByStatus(["pending"]).map((visit) => (
                   <VisitCard
                     key={visit.id}
                     visit={visit}
@@ -287,7 +378,7 @@ const ManageVisits = () => {
           </TabsContent>
 
           <TabsContent value="approved" className="space-y-4">
-            {filteredVisits(["approved"]).length === 0 ? (
+            {getVisitsByStatus(["approved"]).length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center">
                   <p className="text-gray-500">Nenhuma visita aprovada encontrada.</p>
@@ -295,15 +386,16 @@ const ManageVisits = () => {
               </Card>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredVisits(["approved"]).map((visit) => (
+                {getVisitsByStatus(["approved"]).map((visit) => (
                   <VisitCard
                     key={visit.id}
                     visit={visit}
                     actionButton={
-                      <div className="flex space-x-2">
+                      <>
                         <Button
                           variant="outline"
                           onClick={() => openStatusDialog(visit)}
+                          className="mr-2"
                         >
                           Atualizar
                         </Button>
@@ -311,12 +403,13 @@ const ManageVisits = () => {
                           <Button
                             variant="outline"
                             onClick={() => syncVisitToGoogleCalendar(visit)}
+                            className="flex items-center"
                           >
                             <Calendar className="mr-2 h-4 w-4" />
-                            Calendar
+                            Sincronizar
                           </Button>
                         )}
-                      </div>
+                      </>
                     }
                   />
                 ))}
@@ -325,7 +418,7 @@ const ManageVisits = () => {
           </TabsContent>
 
           <TabsContent value="completed" className="space-y-4">
-            {filteredVisits(["completed", "rejected", "cancelled"]).length === 0 ? (
+            {getVisitsByStatus(["completed", "rejected", "cancelled"]).length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center">
                   <p className="text-gray-500">Nenhuma visita concluída encontrada.</p>
@@ -333,7 +426,7 @@ const ManageVisits = () => {
               </Card>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredVisits(["completed", "rejected", "cancelled"]).map((visit) => (
+                {getVisitsByStatus(["completed", "rejected", "cancelled"]).map((visit) => (
                   <VisitCard key={visit.id} visit={visit} />
                 ))}
               </div>
@@ -341,23 +434,21 @@ const ManageVisits = () => {
           </TabsContent>
 
           <TabsContent value="all" className="space-y-4">
-            {visits.length === 0 ? (
+            {getVisitsByStatus(["pending", "approved", "completed", "rejected", "cancelled"]).length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center">
-                  <p className="text-gray-500">Nenhuma solicitação encontrada.</p>
+                  <p className="text-gray-500">Nenhuma visita encontrada.</p>
                 </CardContent>
               </Card>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredVisits(["pending", "approved", "completed", "rejected", "cancelled"]).map(
-                  (visit) => (
-                    <VisitCard
-                      key={visit.id}
-                      visit={visit}
-                      actionButton={renderActionButtons(visit)}
-                    />
-                  )
-                )}
+                {getVisitsByStatus(["pending", "approved", "completed", "rejected", "cancelled"]).map((visit) => (
+                  <VisitCard
+                    key={visit.id}
+                    visit={visit}
+                    actionButton={renderActionButtons(visit)}
+                  />
+                ))}
               </div>
             )}
           </TabsContent>

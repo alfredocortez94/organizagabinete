@@ -1,0 +1,18 @@
+.animate-loader-bar {
+  animation: loader-bar 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  background-size: 200% 100%;
+  background-position: 100% 0;
+}
+@keyframes loader-bar {
+  0% {
+    background-position: 100% 0;
+    opacity: 0.8;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    background-position: 0 0;
+    opacity: 0.8;
+  }
+}

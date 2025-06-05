@@ -2,7 +2,8 @@
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "./ThemeProvider";
-import { Moon, Sun, Settings, Calendar, BarChart2, MessageSquare, LogOut, Home } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { Moon, Sun, Settings, Calendar, BarChart2, MessageSquare, LogOut, Home, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -13,49 +14,71 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-// Navigation items
-const navItems = [
-  {
-    label: "Início",
-    icon: <Home className="h-5 w-5" />,
-    href: "/dashboard",
-  },
-  {
-    label: "Visitas",
-    icon: <Calendar className="h-5 w-5" />,
-    href: "/manage",
-  },
-  {
-    label: "WhatsApp",
-    icon: <MessageSquare className="h-5 w-5" />,
-    href: "/whatsapp",
-  },
-  {
-    label: "Relatórios",
-    icon: <BarChart2 className="h-5 w-5" />,
-    href: "/reports",
-  },
-  {
-    label: "Configurações",
-    icon: <Settings className="h-5 w-5" />,
-    href: "/settings",
-  },
-];
+// Função para obter os itens de navegação com base no papel do usuário
+const getNavItems = (isAdmin: boolean) => {
+  const baseItems = [
+    {
+      label: "Início",
+      icon: <Home className="h-5 w-5" />,
+      href: "/dashboard",
+    },
+    {
+      label: "Visitas",
+      icon: <Calendar className="h-5 w-5" />,
+      href: "/manage",
+    },
+    {
+      label: "WhatsApp",
+      icon: <MessageSquare className="h-5 w-5" />,
+      href: "/whatsapp",
+    },
+    {
+      label: "Relatórios",
+      icon: <BarChart2 className="h-5 w-5" />,
+      href: "/reports",
+    },
+    {
+      label: "Configurações",
+      icon: <Settings className="h-5 w-5" />,
+      href: "/settings",
+    },
+  ];
+
+  // Adicionar item de gerenciamento de usuários apenas para administradores
+  if (isAdmin) {
+    baseItems.splice(4, 0, {
+      label: "Usuários",
+      icon: <Users className="h-5 w-5" />,
+      href: "/users",
+    });
+  }
+
+  return baseItems;
+};
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Verificar se o usuário é administrador
+  const isAdmin = user?.role === "admin";
+  
+  // Obter itens de navegação com base no papel do usuário
+  const navItems = getNavItems(isAdmin);
   
   // Check if current path is active
   const isActive = (path: string) => {
     return location.pathname === path;
   };
   
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+  const { logout } = useAuth();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F5F7] dark:bg-[#000000]">
