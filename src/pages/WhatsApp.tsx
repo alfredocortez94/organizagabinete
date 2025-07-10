@@ -2,173 +2,172 @@ import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { useVisit, Visit } from "@/context/VisitContext";
-
+import { useVisit } from "@/context/VisitContext";
+import type { Visit } from "@/context/VisitContext";
 import { 
-    MessageSquare, 
-    Users, 
-    History, 
-    Settings
-  } from "lucide-react";
-  import { Contact } from "@/tipos/whatsapp";  
+  MessageSquare, 
+  Users, 
+  History, 
+  Settings
+} from "lucide-react";
+import type { Contact } from "@/tipos/whatsapp";
 
-  // Components
-  import WhatsAppMessages from "@/components/whatsapp/WhatsAppMessages";
-  import WhatsAppApiConfig from "@/components/whatsapp/WhatsAppApiConfig";
-  import ContactList from "@/components/whatsapp/ContactList";
-  import AddContact from "@/components/whatsapp/AddContact";
-  import ImportContacts from "@/components/whatsapp/ImportContacts";
-  import PlaceholderCard from "@/components/whatsapp/PlaceHolderCard";
-
+// Components
+import WhatsAppMessages from "@/components/whatsapp/WhatsAppMessages";
+import WhatsAppApiConfig from "@/components/whatsapp/WhatsAppApiConfig";
+import ContactList from "@/components/whatsapp/ContactList";
+import AddContact from "@/components/whatsapp/AddContact";
+import ImportContacts from "@/components/whatsapp/ImportContacts";
+import PlaceholderCard from "@/components/whatsapp/PlaceHolderCard";
 
 const WhatsApp = () => {
-    const { toast } = useToast();
-    const { visits } = useVisit();
-    const [apiKey, setApiKey] = useState("");
-    const [contacts, setContacts] = useState<Contact[]>([]);
-    const [selectedContactIds, setSelectedContactIds] = useState<string[]>([]);
- 
-    // Load contacts from localStorage on mount
-    useEffect(() => {
-      const storedContacts = localStorage.getItem("whatsapp_contacts");
-      if (storedContacts) {
-        setContacts(JSON.parse(storedContacts));
-      } else {
-        // Initialize with visitor contacts if none exist yet
-        importVisitsAsContacts();
-      }
-    }, []);
-  
-    // Save contacts to localStorage when they change
-    useEffect(() => {
-      localStorage.setItem("whatsapp_contacts", JSON.stringify(contacts));
-    }, [contacts]);
+  const { toast } = useToast();
+  const { visits } = useVisit();
+  const [apiKey, setApiKey] = useState("");
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [selectedContactIds, setSelectedContactIds] = useState<string[]>([]);
 
-      // Generate a unique ID
+  // Load contacts from localStorage on mount
+  useEffect(() => {
+    const storedContacts = localStorage.getItem("whatsapp_contacts");
+    if (storedContacts) {
+      setContacts(JSON.parse(storedContacts));
+    } else {
+      // Initialize with visitor contacts if none exist yet
+      importVisitsAsContacts();
+    }
+  }, []);
+
+  // Save contacts to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem("whatsapp_contacts", JSON.stringify(contacts));
+  }, [contacts]);
+
+  // Generate a unique ID
   const generateId = () => {
     return Math.random().toString(36).substring(2, 9);
   };
-  
-    // Import visitors as contacts
-    const importVisitsAsContacts = () => {
-      const uniqueVisitors = new Map<string, Visit>();
-      
-      // Get unique visitors by phone number
-      visits.forEach(visit => {
-        if (visit.visitorPhone && !uniqueVisitors.has(visit.visitorPhone)) {
-          uniqueVisitors.set(visit.visitorPhone, visit);
-        }
+
+  // Import visitors as contacts
+  const importVisitsAsContacts = () => {
+    const uniqueVisitors = new Map<string, Visit>();
+    
+    // Get unique visitors by phone number
+    for (const visit of visits) {
+      if (visit.visitorPhone && !uniqueVisitors.has(visit.visitorPhone)) {
+        uniqueVisitors.set(visit.visitorPhone, visit);
+      }
+    }
+    
+    const newContacts: Contact[] = Array.from(uniqueVisitors.values()).map(visit => ({
+      id: generateId(),
+      name: visit.visitorName,
+      phone: visit.visitorPhone,
+      email: visit.visitorEmail,
+      source: 'visit' as const,
+      createdAt: new Date().toISOString()
+    }));
+    
+    // Merge with existing contacts without duplicates
+    const updatedContacts = [...contacts];
+    for (const newContact of newContacts) {
+      if (!contacts.some(c => c.phone === newContact.phone)) {
+        updatedContacts.push(newContact);
+      }
+    }
+    
+    setContacts(updatedContacts);
+    toast({
+      title: "Contatos importados",
+      description: `${newContacts.length} contatos importados das visitas`,
+    });
+  };
+
+  // Add a new contact manually
+  const addContact = (contactData: Omit<Contact, "id" | "createdAt">) => {
+    // Check if phone number already exists
+    if (contacts.some(c => c.phone === contactData.phone)) {
+      toast({
+        title: "Contato já existe",
+        description: "Este número de telefone já está cadastrado",
+        variant: "destructive",
       });
+      return;
+    }
+
+    const contact: Contact = {
+      id: generateId(),
+      ...contactData,
+      createdAt: new Date().toISOString()
+    };
+
+    setContacts(prevContacts => [...prevContacts, contact]);
+    
+    toast({
+      title: "Contato adicionado",
+      description: `Contato ${contact.name} foi adicionado com sucesso`,
+    });
+  };
+
+  // Handle import from file (CSV/Excel)
+  const handleImport = async (importFile: File) => {
+    try {
+      const text = await importFile.text();
+      const rows = text.split('\n');
       
-      const newContacts: Contact[] = Array.from(uniqueVisitors.values()).map(visit => ({
-        id: generateId(),
-        name: visit.visitorName,
-        phone: visit.visitorPhone,
-        email: visit.visitorEmail,
-        source: 'visit' as const,
-        createdAt: new Date().toISOString()
-      }));
+      // Skip header row
+      const dataRows = rows.slice(1);
+      
+      const importedContacts: (Contact | null)[] = dataRows
+        .filter(row => row.trim() !== '')
+        .map(row => {
+          const columns = row.split(',');
+          const name = columns[0]?.trim();
+          const phone = columns[1]?.trim();
+          const email = columns[2]?.trim();
+          
+          if (name && phone) {
+            return {
+              id: generateId(),
+              name,
+              phone,
+              email: email || undefined,
+              source: 'import' as const,
+              createdAt: new Date().toISOString()
+            };
+          }
+          return null;
+        });
+      
+      // Filter out null values with a type guard
+      const validContacts: Contact[] = importedContacts.filter((contact): contact is Contact => contact !== null);
       
       // Merge with existing contacts without duplicates
       const updatedContacts = [...contacts];
-      newContacts.forEach(newContact => {
+      let newCount = 0;
+      
+      for (const newContact of validContacts) {
         if (!contacts.some(c => c.phone === newContact.phone)) {
           updatedContacts.push(newContact);
+          newCount++;
         }
-      });
+      }
       
       setContacts(updatedContacts);
-      toast({
-        title: "Contatos importados",
-        description: `${newContacts.length} contatos importados das visitas`,
-      });
-    };
-  
-    // Add a new contact manually
-    const addContact = (contactData: Omit<Contact, "id" | "createdAt">) => {
-  
-      // Check if phone number already exists
-      if (contacts.some(c => c.phone === contactData.phone)) {
-        toast({
-          title: "Contato já existe",
-          description: "Este número de telefone já está cadastrado",
-          variant: "destructive",
-        });
-        return;
-      }
-  
-      const contact: Contact = {
-        id: generateId(),
-        ...contactData,
-        createdAt: new Date().toISOString()
-      };
-  
-      setContacts(prevContacts => [...prevContacts, contact]);
-      toast({
-        title: "Contato adicionado",
-        description: `Contato ${contact.name} foi adicionado com sucesso`,
-      });
-    };
-  
-    // Handle import from file (CSV/Excel)
-    const handleImport = async (importFile: File) => {
-      try {
-        const text = await importFile.text();
-        const rows = text.split('\n');
-        
-        // Skip header row
-        const dataRows = rows.slice(1);
-        
-        const importedContacts: (Contact | null)[] = dataRows
-          .filter(row => row.trim() !== '')
-          .map(row => {
-            const columns = row.split(',');
-            const name = columns[0]?.trim();
-            const phone = columns[1]?.trim();
-            const email = columns[2]?.trim();
-            
-            if (name && phone) {
-              return {
-                id: generateId(),
-                name,
-                phone,
-                email: email || undefined,
-                source: 'import' as const,
-                createdAt: new Date().toISOString()
-              };
-            }
-            return null;
-        });
       
-        // Filter out null values with a type guard
-        const validContacts: Contact[] = importedContacts.filter((contact): contact is Contact => contact !== null);
-        
-        // Merge with existing contacts without duplicates
-        const updatedContacts = [...contacts];
-        let newCount = 0;
-        
-        validContacts.forEach(newContact => {
-          if (!contacts.some(c => c.phone === newContact.phone)) {
-            updatedContacts.push(newContact);
-            newCount++;
-          }
-        });
-        
-        setContacts(updatedContacts);
-        
-        toast({
-          title: "Importação concluída",
-          description: `${newCount} novos contatos foram importados`,
-        });
-        
-      } catch (error) {
-        console.error("Erro na importação:", error);
-        toast({
-          title: "Erro na importação",
-          description: "Ocorreu um erro ao importar os contatos. Verifique o formato do arquivo.",
-          variant: "destructive",
-        });
-        throw error;
+      toast({
+        title: "Importação concluída",
+        description: `${newCount} novos contatos foram importados`,
+      });
+      
+    } catch (error) {
+      console.error("Erro na importação:", error);
+      toast({
+        title: "Erro na importação",
+        description: "Ocorreu um erro ao importar os contatos. Verifique o formato do arquivo.",
+        variant: "destructive",
+      });
+      throw error;
     }
   };
 
@@ -207,16 +206,16 @@ const WhatsApp = () => {
           </TabsList>
           
           <TabsContent value="messages">
-          <WhatsAppMessages 
+            <WhatsAppMessages 
               apiKey={apiKey} 
               selectedContactIds={selectedContactIds} 
             />
           </TabsContent>
           
           <TabsContent value="contacts">
-          <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-8">
               <div className="md:col-span-2">
-              <ContactList 
+                <ContactList 
                   contacts={contacts}
                   selectedContactIds={selectedContactIds}
                   toggleContactSelection={toggleContactSelection}
@@ -225,22 +224,21 @@ const WhatsApp = () => {
               </div>
               
               <div className="space-y-8">
-              <AddContact addContact={addContact} />
-              <ImportContacts handleImport={handleImport} />
-                
+                <AddContact addContact={addContact} />
+                <ImportContacts handleImport={handleImport} />
               </div>
             </div>
           </TabsContent>
           
           <TabsContent value="history">
-          <PlaceholderCard 
+            <PlaceholderCard 
               title="Histórico de Mensagens" 
               description="Visualize seu histórico de mensagens enviadas" 
-            /> 
+            />
           </TabsContent>
           
           <TabsContent value="settings">
-          <WhatsAppApiConfig apiKey={apiKey} setApiKey={setApiKey} />
+            <WhatsAppApiConfig apiKey={apiKey} setApiKey={setApiKey} />
           </TabsContent>
         </Tabs>
       </div>

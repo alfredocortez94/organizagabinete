@@ -1,10 +1,10 @@
 
-import React from "react";
+import type React from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, User } from "lucide-react";
 import StatusBadge from "./StatusBadge";
-import { Visit } from "@/context/VisitContext";
+import type { Visit } from "@/context/VisitContext";
 import { Link } from "react-router-dom";
 import { formatDate } from "@/lib/utils";
 

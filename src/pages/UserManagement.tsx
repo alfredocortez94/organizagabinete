@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import userService, { User } from "../services/user.service";
+import userService from "../services/user.service";
+import type { User } from "../services/user.service";
 import Layout from "@/components/Layout";
 import { toast } from "sonner";
 
@@ -98,7 +99,7 @@ const UserManagement = () => {
         if (response.success) {
           setUsers(response.data);
         } else {
-          toast.error("Erro ao carregar usuários: " + response.message);
+          toast.error(`Erro ao carregar usuários: ${response.message}`);
         }
       } catch (error) {
         console.error("Erro ao carregar usuários:", error);
@@ -181,7 +182,7 @@ const UserManagement = () => {
         setUsers((prev) => [...prev, response.data]);
         setIsCreateDialogOpen(false);
       } else {
-        toast.error("Erro ao criar usuário: " + response.message);
+        toast.error(`Erro ao criar usuário: ${response.message}`);
       }
     } catch (error) {
       console.error("Erro ao criar usuário:", error);
@@ -200,9 +201,11 @@ const UserManagement = () => {
       }
 
       // Remover senha se estiver vazia
-      const updateData = { ...formData };
+      let updateData = { ...formData };
       if (!updateData.password) {
-        delete updateData.password;
+        // Cria um novo objeto sem a propriedade password
+        const { password, ...rest } = updateData;
+        updateData = rest;
       }
 
       const response = await userService.updateUser(selectedUser.id, updateData);
@@ -215,7 +218,7 @@ const UserManagement = () => {
         );
         setIsEditDialogOpen(false);
       } else {
-        toast.error("Erro ao atualizar usuário: " + response.message);
+        toast.error(`Erro ao atualizar usuário: ${response.message}`);
       }
     } catch (error) {
       console.error("Erro ao atualizar usuário:", error);
@@ -234,7 +237,7 @@ const UserManagement = () => {
         setUsers((prev) => prev.filter((user) => user.id !== selectedUser.id));
         setIsDeleteDialogOpen(false);
       } else {
-        toast.error("Erro ao excluir usuário: " + response.message);
+        toast.error(`Erro ao excluir usuário: ${response.message}`);
       }
     } catch (error) {
       console.error("Erro ao excluir usuário:", error);
@@ -375,16 +378,19 @@ const UserManagement = () => {
                           aria-disabled={currentPage === 1}
                         />
                       </PaginationItem>
-                      {Array.from({ length: totalPages }).map((_, index) => (
-                        <PaginationItem key={index}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(index + 1)}
-                            isActive={currentPage === index + 1}
-                          >
-                            {index + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
+                      {Array.from({ length: totalPages }).map((_, index) => {
+                        const pageNumber = index + 1;
+                        return (
+                          <PaginationItem key={`page-${pageNumber}`}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(pageNumber)}
+                              isActive={currentPage === pageNumber}
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
                       <PaginationItem>
                         <PaginationNext
                           href="#"

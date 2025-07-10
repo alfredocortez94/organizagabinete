@@ -1,8 +1,8 @@
 
-import React from "react";
+import type React from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { VisitStatus } from "@/context/VisitContext";
+import type { VisitStatus } from "@/context/VisitContext";
 
 interface StatusBadgeProps {
   status: VisitStatus;
@@ -13,7 +13,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className }) => {
   const statusConfig = {
     pending: {
       label: "Pendente",
-      styles: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      styles: "bg-blue-100 text-blue-800 border-blue-200",
     },
     approved: {
       label: "Aprovado",
@@ -25,7 +25,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className }) => {
     },
     completed: {
       label: "Concluído",
-      styles: "bg-blue-100 text-blue-800 border-blue-200",
+      styles: "bg-slate-100 text-slate-800 border-slate-200",
     },
     cancelled: {
       label: "Cancelado",

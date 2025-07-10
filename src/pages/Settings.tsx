@@ -1,10 +1,10 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GoogleCalendarConfigComponent from "@/components/google-calendar/GoogleCalendarConfig";
-// Corrigida a importação para usar o tipo do arquivo correto
-import { GoogleCalendarConfig } from "@/tipos/googleCalendar";
+import type { GoogleCalendarConfig } from "@/tipos/whatsapp";
 import { useToast } from "@/components/ui/use-toast";
 import { syncVisitWithGoogleCalendar } from "@/utils/googleCalendar";
 import { useVisit } from "@/context/VisitContext";
@@ -24,10 +24,10 @@ const Settings = () => {
         };
   });
 
-  const handleSaveGoogleCalendarConfig = (config: GoogleCalendarConfig) => {
+  const handleSaveGoogleCalendarConfig = async (config: GoogleCalendarConfig) => {
     setGoogleCalendarConfig(config);
     localStorage.setItem("googleCalendarConfig", JSON.stringify(config));
-
+  
     // If enabled, attempt to sync approved visits
     if (config.enabled && config.calendarId && config.authToken) {
       const approvedVisits = visits.filter(visit => 
@@ -38,8 +38,8 @@ const Settings = () => {
           title: "Sincronizando visitas",
           description: `${approvedVisits.length} visitas serão sincronizadas com o Google Calendar.`,
         });
-
-        approvedVisits.forEach(async visit => {
+  
+        for (const visit of approvedVisits) {
           try {
             const eventId = await syncVisitWithGoogleCalendar(visit, config);
             if (eventId) {
@@ -52,7 +52,7 @@ const Settings = () => {
           } catch (error) {
             console.error("Erro ao sincronizar visita:", error);
           }
-        });
+        }
       }
     }
   };

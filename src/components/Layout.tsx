@@ -1,9 +1,7 @@
 
-import React from "react";
+import type React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useTheme } from "./ThemeProvider";
-import { useAuth } from "../context/AuthContext";
-import { Moon, Sun, Settings, Calendar, BarChart2, MessageSquare, LogOut, Home, Users } from "lucide-react";
+import { Settings, Calendar, BarChart2, MessageSquare, LogOut, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -14,81 +12,58 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-// Função para obter os itens de navegação com base no papel do usuário
-const getNavItems = (isAdmin: boolean) => {
-  const baseItems = [
-    {
-      label: "Início",
-      icon: <Home className="h-5 w-5" />,
-      href: "/dashboard",
-    },
-    {
-      label: "Visitas",
-      icon: <Calendar className="h-5 w-5" />,
-      href: "/manage",
-    },
-    {
-      label: "WhatsApp",
-      icon: <MessageSquare className="h-5 w-5" />,
-      href: "/whatsapp",
-    },
-    {
-      label: "Relatórios",
-      icon: <BarChart2 className="h-5 w-5" />,
-      href: "/reports",
-    },
-    {
-      label: "Configurações",
-      icon: <Settings className="h-5 w-5" />,
-      href: "/settings",
-    },
-  ];
-
-  // Adicionar item de gerenciamento de usuários apenas para administradores
-  if (isAdmin) {
-    baseItems.splice(4, 0, {
-      label: "Usuários",
-      icon: <Users className="h-5 w-5" />,
-      href: "/users",
-    });
-  }
-
-  return baseItems;
-};
+// Navigation items
+const navItems = [
+  {
+    label: "Início",
+    icon: <Home className="h-5 w-5" />,
+    href: "/dashboard",
+  },
+  {
+    label: "Visitas",
+    icon: <Calendar className="h-5 w-5" />,
+    href: "/manage",
+  },
+  {
+    label: "WhatsApp",
+    icon: <MessageSquare className="h-5 w-5" />,
+    href: "/whatsapp",
+  },
+  {
+    label: "Relatórios",
+    icon: <BarChart2 className="h-5 w-5" />,
+    href: "/reports",
+  },
+  {
+    label: "Configurações",
+    icon: <Settings className="h-5 w-5" />,
+    href: "/settings",
+  },
+];
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { theme, setTheme } = useTheme();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Verificar se o usuário é administrador
-  const isAdmin = user?.role === "admin";
-  
-  // Obter itens de navegação com base no papel do usuário
-  const navItems = getNavItems(isAdmin);
   
   // Check if current path is active
   const isActive = (path: string) => {
     return location.pathname === path;
   };
   
-  const { logout } = useAuth();
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
     navigate("/login");
   };
 
-
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5F5F7] dark:bg-[#000000]">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Navbar for desktop */}
-      <header className="sticky top-0 z-30 border-b glass-effect">
+      <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
         <div className="container flex items-center justify-between h-16 gap-6 sm:gap-8">
           <div className="flex items-center">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="mr-2 md:hidden text-apple-blue dark:text-apple-blue">
+                <Button variant="ghost" size="icon" className="mr-2 md:hidden text-blue-600">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -101,6 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     strokeLinejoin="round"
                     className="lucide lucide-menu"
                   >
+                    <title>Open menu</title>
                     <line x1="4" x2="20" y1="12" y2="12" />
                     <line x1="4" x2="20" y1="6" y2="6" />
                     <line x1="4" x2="20" y1="18" y2="18" />
@@ -108,9 +84,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[280px] sm:w-[320px] md:hidden">
+              <SheetContent side="left" className="w-[280px] sm:w-[320px] md:hidden bg-white">
                 <div className="py-4">
-                  <div className="text-xl font-semibold mb-6 px-2">Organiza Gabinete</div>
+                  <div className="text-xl font-semibold mb-6 px-2 text-slate-900">Organiza Gabinete</div>
                   <nav className="space-y-1.5 px-2 mt-4">
                     {navItems.map((item) => (
                       <Link
@@ -119,8 +95,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         className={cn(
                           "flex items-center gap-3 rounded-full px-4 py-2.5 transition-all",
                           isActive(item.href)
-                            ? "bg-apple-blue text-white"
-                            : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-700 hover:bg-gray-100"
                         )}
                       >
                         {item.icon}
@@ -132,7 +108,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </SheetContent>
             </Sheet>
             <h1 className="text-xl font-semibold">
-              <Link to="/dashboard" className="flex items-center gap-2 tracking-tight">
+              <Link to="/dashboard" className="flex items-center gap-2 tracking-tight text-slate-900">
                 <span className="hidden sm:inline-block">Organiza Gabinete</span>
                 <span className="sm:hidden">OG</span>
               </Link>
@@ -147,8 +123,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-full transition-all lg:px-4",
                   isActive(item.href)
-                    ? "bg-apple-blue text-white"
-                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-700 hover:bg-gray-100"
                 )}
               >
                 {item.icon}
@@ -158,20 +134,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </nav>
           
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-full h-10 w-10 bg-gray-100 dark:bg-gray-800 transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-[1.3rem] w-[1.3rem] text-yellow-400" />
-              ) : (
-                <Moon className="h-[1.3rem] w-[1.3rem] text-slate-700" />
-              )}
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -179,26 +141,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   size="icon"
                   className="rounded-full overflow-hidden focus-visible:ring-offset-0 focus-visible:ring-0"
                 >
-                  <Avatar className="h-10 w-10 border-2 border-gray-200 dark:border-gray-700">
+                  <Avatar className="h-10 w-10 border-2 border-gray-200">
                     <AvatarImage src="" />
-                    <AvatarFallback className="text-base bg-apple-blue text-white">OG</AvatarFallback>
+                    <AvatarFallback className="text-base bg-blue-600 text-white">OG</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 mt-1 p-1.5">
+              <DropdownMenuContent align="end" className="w-56 mt-1 p-1.5 bg-white border-gray-200">
                 <div className="flex flex-col p-2 mb-1">
-                  <span className="text-sm font-medium">Usuário</span>
-                  <span className="text-xs text-muted-foreground">admin@gabinete.org</span>
+                  <span className="text-sm font-medium text-slate-900">Usuário</span>
+                  <span className="text-xs text-gray-500">admin@gabinete.org</span>
                 </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="rounded-md cursor-pointer py-1.5 px-2">
+                <DropdownMenuSeparator className="bg-gray-200" />
+                <DropdownMenuItem className="rounded-md cursor-pointer py-1.5 px-2 text-slate-700 hover:bg-gray-100">
                   Meu Perfil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-md cursor-pointer py-1.5 px-2" asChild>
+                <DropdownMenuItem className="rounded-md cursor-pointer py-1.5 px-2 text-slate-700 hover:bg-gray-100" asChild>
                   <Link to="/settings">Configurações</Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="rounded-md cursor-pointer text-red-600 py-1.5 px-2">
+                <DropdownMenuSeparator className="bg-gray-200" />
+                <DropdownMenuItem onClick={handleLogout} className="rounded-md cursor-pointer text-red-600 py-1.5 px-2 hover:bg-red-50">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair
                 </DropdownMenuItem>
@@ -212,9 +174,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <main className="flex-1 py-6 container px-4 md:px-6">{children}</main>
       
       {/* Footer */}
-      <footer className="border-t py-6 bg-white/60 dark:bg-[#1C1C1E]/60 dark:border-gray-800 backdrop-blur-sm">
+      <footer className="border-t border-gray-200 py-6 bg-white">
         <div className="container">
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-center text-sm text-gray-500">
             &copy; {new Date().getFullYear()} Organiza Gabinete. Todos os direitos reservados.
           </p>
         </div>

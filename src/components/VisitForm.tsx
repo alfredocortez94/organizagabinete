@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useVisit, Visit, VisitStatus } from "../context/VisitContext";
+import { useVisit } from "../context/VisitContext";
+import type { Visit, VisitStatus } from "../context/VisitContext";
 import userService from "../services/user.service";
 import { toast } from "sonner";
 

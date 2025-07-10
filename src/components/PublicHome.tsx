@@ -16,7 +16,7 @@ const PublicHome = () => {
       const animateElements = document.querySelectorAll('.feature-card, section h2, section p, .animate-on-scroll');
       
       const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        for (const entry of entries) {
           if (entry.isIntersecting) {
             entry.target.classList.add('animate-fade-in');
             if (entry.target.classList.contains('feature-card')) {
@@ -25,22 +25,22 @@ const PublicHome = () => {
             // Parar de observar depois que a animação é aplicada
             observer.unobserve(entry.target);
           }
-        });
+        }
       }, {
         root: null,
         rootMargin: '0px',
         threshold: 0.1
       });
       
-      animateElements.forEach(element => {
+      for (const element of animateElements) {
         observer.observe(element);
-      });
+      }
       
       // Limpar o observer quando o componente for desmontado
       return () => {
-        animateElements.forEach(element => {
+        for (const element of animateElements) {
           observer.unobserve(element);
-        });
+        }
       };
     };
     
@@ -50,39 +50,29 @@ const PublicHome = () => {
     // Adicionar efeitos de hover nos elementos
     const addHoverEffects = () => {
       const cards = document.querySelectorAll('.apple-card, .feature-card');
-      cards.forEach(card => {
+      for (const card of cards) {
         card.addEventListener('mouseenter', () => {
           card.classList.add('scale-[1.02]');
         });
         card.addEventListener('mouseleave', () => {
           card.classList.remove('scale-[1.02]');
         });
-      });
+      }
     };
     
     addHoverEffects();
     
-    // Limpar os event listeners quando o componente for desmontado
-    return () => {
-      const cards = document.querySelectorAll('.apple-card, .feature-card');
-      cards.forEach(card => {
-        card.removeEventListener('mouseenter', () => {});
-        card.removeEventListener('mouseleave', () => {});
-      });
-    };
   }, []);
 
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
       <HeroSection />
-      <div className="mt-[-120px] md:mt-[-100px] lg:mt-[-80px]"> {/* Margem negativa responsiva */}
-        <FeaturesSection />
-        <FeatureCards />
-        <PricingSection />
-        <TestimonialsSection />
-        <CTASection />
-      </div>
+      <FeatureCards />
+      <FeaturesSection />
+      <PricingSection />
+      <TestimonialsSection />
+      <CTASection />
       <Footer />
     </div>
   );

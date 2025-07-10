@@ -11,7 +11,7 @@ import Footer from "@/components/landing/Footer";
 
 const PublicHome = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
       <FeatureCards />

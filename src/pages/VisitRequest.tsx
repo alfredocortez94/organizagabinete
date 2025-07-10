@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -104,12 +105,15 @@ const VisitRequest = () => {
         visitTime: data.visitTime,
         purpose: data.purpose,
         requestDate: new Date().toISOString(),
+        userId: "", // Preencha com o ID do usuário se disponível
+        status: "pending" as const, // Ou outro status inicial conforme sua lógica
+        notes: "", // Ou algum valor padrão
       };
       
-      const newVisit = addVisit(visitData);
+      const newVisit = await addVisit(visitData);
       setIsSubmitting(false);
       
-      if (newVisit && newVisit.id) {
+      if (newVisit?.id) {
         navigate(`/status/${newVisit.id}`);
       } else {
         console.error("Não foi possível obter o ID da nova visita");

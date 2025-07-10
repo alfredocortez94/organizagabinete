@@ -180,9 +180,7 @@ const VisitStatus = () => {
             <div className="relative">
               <div className="flex items-center mb-4">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center z-10 ${
-                    true ? "bg-green-500 text-white" : "bg-gray-200"
-                  }`}
+                  className="w-8 h-8 rounded-full flex items-center justify-center z-10 bg-green-500 text-white"
                 >
                   <Check className="h-4 w-4" />
                 </div>
@@ -261,7 +259,7 @@ const VisitStatus = () => {
                 className={`absolute left-4 top-8 h-[calc(100%-40px)] w-0.5 bg-gray-200 -z-10 ${
                   visit.status === "rejected" ? "bottom-12" : ""
                 }`}
-              ></div>
+              />
             </div>
           </div>
         </div>

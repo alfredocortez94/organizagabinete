@@ -77,23 +77,12 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				status: {
-					pending: '#FF9500',
-					approved: '#30D158',
-					rejected: '#FF453A',
-					completed: '#0A84FF',
-					cancelled: '#8E8E93'
-				},
-				apple: {
-					blue: '#0A84FF',
-					green: '#30D158', 
-					red: '#FF453A',
-					orange: '#FF9F0A',
-					purple: '#BF5AF2',
-					yellow: '#FFD60A',
-					gray: '#8E8E93',
-					background: '#F5F5F7',
-					card: '#FFFFFF'
+				chart: {
+					'1': 'hsl(var(--chart-1))',
+					'2': 'hsl(var(--chart-2))',
+					'3': 'hsl(var(--chart-3))',
+					'4': 'hsl(var(--chart-4))',
+					'5': 'hsl(var(--chart-5))'
 				}
 			},
 			borderRadius: {
@@ -171,8 +160,8 @@ export default {
 				}
 			},
 			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
+				'accordion-down': 'accordion-down 0.2s ease-out forwards',
+				'accordion-up': 'accordion-up 0.2s ease-out forwards',
 				'fade-in': 'fade-in 0.5s ease-out forwards',
 				'fade-in-left': 'fade-in-left 0.5s ease-out forwards',
 				'pulse-soft': 'pulse-soft 3s infinite ease-in-out',
